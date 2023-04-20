@@ -8,11 +8,14 @@ const DataIndexing = () => {
 
   const generateNode = (connect = true) => {
     const newNode = new Node();
-    nodes = [...nodes, newNode];
-
+    
     if (connect) {
       newNode.connect(nodes[nodes.length - 1]);
+    } else {
+      newNode.index = [0, 0];
     }
+
+    nodes.push(newNode);
   }
 
   const cycleNodes = () => {

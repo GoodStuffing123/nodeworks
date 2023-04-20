@@ -4,7 +4,6 @@ node_modules/
 build/
 dist/
 .DS_Store
-.env
 *.tgz
 my-app*
 template/src/__tests__/__snapshots__/
