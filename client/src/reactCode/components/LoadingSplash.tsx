@@ -13,16 +13,16 @@ const Canvas = styled.canvas`
 
 // Declare interface for a single animated node
 interface AnimNode {
-  x: number,
-  y: number,
-  r: number,
-  wobbleSpeed: number,
-  wobbleAmount: number,
-  wobbleValue: number,
-  connectedNodes: number[],
-  connectionStrength: number,
-  trueX: number,
-  trueY: number,
+  x: number;
+  y: number;
+  r: number;
+  wobbleSpeed: number;
+  wobbleAmount: number;
+  wobbleValue: number;
+  connectedNodes: number[];
+  connectionStrength: number;
+  trueX: number;
+  trueY: number;
 }
 
 // Create an empty array for animated nodes
@@ -57,14 +57,14 @@ const generateNodes = () => {
       trueX: 0,
       trueY: 0,
     };
-    
+
     // Add connected node indexes to current node's connected nodes array
     nodes.forEach((oldNode, i) => {
       // Connect nodes if a random number is less than a certain size and the nodes are close enough together
       if (Math.random() < 0.75 && distance(newNode, oldNode) < 60) {
         newNode.connectedNodes.push(i);
       }
-    })
+    });
 
     // Add node to nodes array
     nodes.push(newNode);
@@ -77,14 +77,14 @@ const generateNodes = () => {
       nodePos.x += 40;
     }
   }
-}
+};
 // Run function to generate nodes
 generateNodes();
 
 // Declare last frame timestamp variable
 let lastFrame = 0;
 // Function to calculate and draw loading animation to the canvas
-const draw = async (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+const draw = (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
   // Find center of screen
   const center = { x: Canvas.width / 2, y: Canvas.height / 2 };
   // Clear the canvas
@@ -93,20 +93,22 @@ const draw = async (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) =>
   // Set time since last frame in seconds for calculating the animation speed on monitors with different refresh rates
   const thisFrame = Date.now();
   const deltaTime = (thisFrame - lastFrame) / 1000;
-  // Set time since the last frame to now for 
+  // Set time since the last frame to now for
   lastFrame = thisFrame;
 
   // Set canvas to drawing color
   ctx.fillStyle = "white";
   ctx.strokeStyle = "white";
 
-  // Declare function for drawing nodes
-  const drawNode = (node: AnimNode) => {
+  // Draw nodes and their connectors to the canvas
+  nodes.forEach((node: AnimNode) => {
     node.wobbleValue += node.wobbleSpeed * deltaTime;
-    
-    node.trueX = center.x + node.x + Math.cos(node.wobbleValue) * node.wobbleAmount;
-    node.trueY = center.y + node.y + Math.sin(node.wobbleValue) * node.wobbleAmount;
-    
+
+    node.trueX =
+      center.x + node.x + Math.cos(node.wobbleValue) * node.wobbleAmount;
+    node.trueY =
+      center.y + node.y + Math.sin(node.wobbleValue) * node.wobbleAmount;
+
     node.connectedNodes.forEach((connectedNodeIndex) => {
       const connectedNode = nodes[connectedNodeIndex];
 
@@ -116,26 +118,11 @@ const draw = async (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) =>
       ctx.moveTo(node.trueX, node.trueY);
       ctx.lineTo(connectedNode.trueX, connectedNode.trueY);
       ctx.stroke();
-    })
+    });
 
     ctx.beginPath();
-    ctx.arc(
-      node.trueX,
-      node.trueY,
-      node.r,
-      0,
-      Math.PI * 2,
-    );
+    ctx.arc(node.trueX, node.trueY, node.r, 0, Math.PI * 2);
     ctx.fill();
-  }
-
-  // Make separate threads for each node to increase processing speed
-  const animationThreads: Promise<Boolean>[] = [];
-  nodes.forEach(async (node) => {
-    animationThreads.push(new Promise((resolve) => {
-      drawNode(node);
-      resolve(true);
-    }));
   });
 
   // Draw loading text
@@ -149,9 +136,7 @@ const draw = async (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) =>
   // ctx.textBaseline = "top";
   // ctx.textAlign = "right";
   // ctx.fillText(`Delta Time: ${deltaTime}`, 0, 0);
-
-  await Promise.all(animationThreads);
-}
+};
 
 const LoadingSplash = () => {
   const [dimentions, setDimentions] = useState({
@@ -160,13 +145,13 @@ const LoadingSplash = () => {
   });
 
   const canvasRef: React.MutableRefObject<HTMLCanvasElement> = useRef();
-  
+
   const handleResize = () => {
     setDimentions({
       width: window.innerWidth,
       height: window.innerHeight,
     });
-  }
+  };
 
   useEffect(() => {
     handleResize();
@@ -182,14 +167,14 @@ const LoadingSplash = () => {
 
         requestAnimationFrame(runAnimation);
       }
-    }
+    };
     runAnimation();
 
     return () => {
       window.removeEventListener("resize", handleResize);
 
       animationComplete = true;
-    }
+    };
   }, []);
 
   return (
@@ -199,6 +184,6 @@ const LoadingSplash = () => {
       height={dimentions.height}
     />
   );
-}
+};
 
 export default LoadingSplash;

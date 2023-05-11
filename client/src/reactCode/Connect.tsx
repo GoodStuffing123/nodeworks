@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { DataConnection } from "peerjs";
 
-// import Router from "./Router";
+import Router from "./Router";
 import LoadingSplash from "./components/LoadingSplash";
-import Simulation from "./simulator/Simulation";
+// import Simulation from "./simulator/Simulation";
 
 import { PeerContext } from "./components/Context";
 
@@ -29,14 +29,14 @@ const Connect = () => {
     }
   }, [peerConnections]);
 
-  // return connected ? (
-  //   <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
-  //     <Router />
-  //   </PeerContext.Provider>
-  // ) : (
-  //   <LoadingSplash />
-  // );
-  return <Simulation />;
-}
+  return connected ? (
+    <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
+      <Router />
+    </PeerContext.Provider>
+  ) : (
+    <LoadingSplash />
+  );
+  // return <Simulation />;
+};
 
 export default Connect;

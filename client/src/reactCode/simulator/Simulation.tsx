@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import NodeVisualizer from "./NodeVisualizer";
 import { Node, totalConnections } from "./nodes";
 
 export let nodes: Node[] = [];
@@ -8,33 +9,42 @@ const DataIndexing = () => {
 
   const generateNode = (connect = true) => {
     const newNode = new Node();
-    
+
     if (connect) {
-      newNode.connect(nodes[nodes.length - 1]);
+      newNode.connect(nodes[0]);
     } else {
       newNode.index = [0, 0];
     }
 
     nodes.push(newNode);
-  }
-
-  const cycleNodes = () => {
-    nodes.forEach((node) => {
-      node.cycle();
-    });
-  }
+  };
 
   useEffect(() => {
+    let i = 0;
     const dataVisualizerInterval = setInterval(() => {
       setExtraData({
         totalNodes: nodes.length,
         totalConnections,
       });
-    }, 70);
+
+      if (i < nodes.length) {
+        if (i > 0) {
+          nodes[i - 1].cycling = false;
+        }
+        nodes[i].cycling = true;
+
+        nodes[i].cycle();
+
+        i++;
+      } else if (nodes.length) {
+        nodes[i - 1].cycling = false;
+        i = 0;
+      }
+    }, 50);
 
     return () => {
       clearInterval(dataVisualizerInterval);
-    }
+    };
   }, []);
 
   return (
@@ -44,8 +54,6 @@ const DataIndexing = () => {
       {nodes.length ? (
         <div>
           <button onClick={() => generateNode()}>Add Node</button>
-
-          <button onClick={() => cycleNodes()}>Run Cycle</button>
         </div>
       ) : (
         <button onClick={() => generateNode(false)}>Begin Simulation</button>
@@ -54,11 +62,15 @@ const DataIndexing = () => {
       <h3>Extra Data:</h3>
       <div>
         {Object.keys(extraData).map((key) => (
-          <p key={key}>{key}: {extraData[key]}</p>
+          <p key={key}>
+            {key}: {extraData[key]}
+          </p>
         ))}
       </div>
+
+      <NodeVisualizer />
     </>
   );
-}
+};
 
 export default DataIndexing;
