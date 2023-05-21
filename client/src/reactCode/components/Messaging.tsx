@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "../../p2p/webConnect";
-import { addPeerListener, removePeerListener } from "../../p2p/peerDataHandler";
-import { sendMessage, Message } from "../../p2p/messages";
+import {
+  addPeerListener,
+  removePeerListener,
+} from "../../p2p/data/peerDataHandler";
+import { sendMessage, Message } from "../../p2p/data/messages";
 
 const emptyMessage: Message = {
   content: "",
@@ -15,19 +18,13 @@ const App = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState(emptyMessage);
 
-  const handleConnect = () => {
-    setConnected(true);
-
-    connect(setPeerConnections);
-  }
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     sendMessage(newMessage, messages, setMessages);
 
     setNewMessage(emptyMessage);
-  }
+  };
 
   useEffect(() => {
     const messageListener = addPeerListener("MESSAGE", (data: Object) => {
@@ -36,7 +33,7 @@ const App = () => {
 
     return () => {
       removePeerListener(messageListener);
-    }
+    };
   }, [messages]);
 
   return (
@@ -53,20 +50,18 @@ const App = () => {
         <input
           type="text"
           value={newMessage.content}
-          onChange={(e) => setNewMessage({ ...newMessage, content: e.target.value })}
+          onChange={(e) =>
+            setNewMessage({ ...newMessage, content: e.target.value })
+          }
         />
         <input type="submit" value="Send" />
       </form>
 
-      {!connected && (
-        <button
-          onClick={handleConnect}
-        >Connect</button>
-      )}
-
-      {peerConnections.map((peerConnection) => <p key={peerConnection.peer}>{peerConnection.peer}</p>)}
+      {peerConnections.map((peerConnection) => (
+        <p key={peerConnection.peer}>{peerConnection.peer}</p>
+      ))}
     </>
   );
-}
+};
 
 export default App;

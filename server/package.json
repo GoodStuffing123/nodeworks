@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js --ignore ./db"
+    "dev": "nodemon index.js --ignore ./db",
+    "serve": "PORT=49586 node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",

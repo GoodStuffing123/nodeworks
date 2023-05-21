@@ -8,7 +8,7 @@ const Canvas = styled.canvas`
   position: absolute;
   left: 0;
   top: 0;
-  z-index: 9999;
+  z-index: -1;
 `;
 
 // Declare interface for a single animated node
@@ -162,8 +162,8 @@ const LoadingSplash = () => {
 
     let animationComplete = false;
     const runAnimation = async () => {
-      if (!animationComplete) {
-        await draw(canvasRef.current, ctx);
+      if (!animationComplete && canvasRef.current) {
+        draw(canvasRef.current, ctx);
 
         requestAnimationFrame(runAnimation);
       }

@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { DataConnection } from "peerjs";
 
 import Router from "./Router";
@@ -9,17 +15,30 @@ import { PeerContext } from "./components/Context";
 
 import { connect, disconnect } from "../p2p/webConnect";
 
+export let setPeerConnections: (value: DataConnection[]) => void;
+
 const Connect = () => {
   const [connected, setConnected] = useState(false);
-  const [peerConnections, setPeerConnections] = useState<DataConnection[]>([]);
 
-  useEffect(() => {
-    connect(setPeerConnections);
+  const connectionsState = useState<DataConnection[]>([]);
+  const peerConnections = connectionsState[0];
+  setPeerConnections = (value) => {
+    connectionsState[1]([...value]);
+  };
+
+  const [isCentral, setIsCentral] = useState(false);
+
+  const startConnection = () => {
+    console.log("CONNECTING");
+
+    connect(isCentral ? process.env.REACT_APP_CENTRAL_PEER_NAME : null);
 
     return () => {
-      disconnect(setPeerConnections);
+      console.log("DISCONNECTING");
+
+      disconnect();
     };
-  }, []);
+  };
 
   useEffect(() => {
     if (peerConnections.length) {
@@ -30,11 +49,23 @@ const Connect = () => {
   }, [peerConnections]);
 
   return connected ? (
-    <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
-      <Router />
-    </PeerContext.Provider>
+    // <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
+    <Router {...{ peerConnections, setPeerConnections }} />
   ) : (
-    <LoadingSplash />
+    // </PeerContext.Provider>
+    <>
+      <LoadingSplash />
+
+      <input
+        type="checkbox"
+        checked={isCentral}
+        onChange={() => setIsCentral(!isCentral)}
+      />
+      <span>is central</span>
+
+      <br />
+      <button onClick={startConnection}>Connect</button>
+    </>
   );
   // return <Simulation />;
 };

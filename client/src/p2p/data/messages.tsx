@@ -1,8 +1,8 @@
 import { broadcast, DataPackage } from "./peerDataHandler";
 
 export interface Message {
-  content: string,
-  sentAt: number,
+  content: string;
+  sentAt: number;
 }
 
 const generateMessage = (newMessage: Message): DataPackage => ({
@@ -13,10 +13,14 @@ const generateMessage = (newMessage: Message): DataPackage => ({
   },
 });
 
-export const sendMessage = (newMessage: Message, messages: Message[], setMessages: Function) => {
+export const sendMessage = (
+  newMessage: Message,
+  messages: Message[],
+  setMessages: Function,
+) => {
   const dataToSend = generateMessage(newMessage);
 
   broadcast(dataToSend);
 
   setMessages([...messages, dataToSend.payload]);
-}
+};
