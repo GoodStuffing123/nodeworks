@@ -1,10 +1,8 @@
-import axios from "axios";
+// import axios from "axios";
 import Peer, { DataConnection } from "peerjs";
 import { setPeerConnections } from "../reactCode/Connect";
-import handleData, {
-  DataPackage,
-  removePeerListener,
-} from "./data/peerDataHandler";
+import handleData from "./data/peerDataHandler";
+import { DataPackage } from "./data/types";
 
 // Declare types
 

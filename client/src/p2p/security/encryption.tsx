@@ -1,4 +1,4 @@
-import { DataPackage } from "../data/peerDataHandler";
+import { DataPackage } from "../data/types";
 
 const generateKeys = async () => {
   const { publicKey, privateKey } = await crypto.subtle.generateKey(

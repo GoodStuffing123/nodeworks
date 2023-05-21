@@ -1,4 +1,5 @@
-import { broadcast, DataPackage } from "./peerDataHandler";
+import { broadcast } from "./peerDataHandler";
+import { DataPackage } from "./types";
 
 export interface Message {
   content: string;

@@ -1,20 +1,7 @@
 import { DataConnection } from "peerjs";
 import { peerConnections } from "../webConnect";
 
-// Declare types
-export interface DataPackage {
-  type: string;
-  payload: any;
-}
-
-export interface PeerListener {
-  type: string;
-  callback: Function;
-}
-
-export const dataTypes = {
-  GET_PEER_DATA: "GET_PEER_DATA",
-};
+import { DataPackage, PeerListener } from "./types";
 
 const peerListeners: PeerListener[] = [];
 

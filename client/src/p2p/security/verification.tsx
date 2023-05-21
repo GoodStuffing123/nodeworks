@@ -1,6 +1,5 @@
 import { DataConnection } from "peerjs";
-// import crypto from "crypto";
-import { DataPackage, dataTypes } from "../data/peerDataHandler";
+import { DataPackage, dataTypes } from "../data/types";
 
 export const solvePeer = (
   peerConnection: DataConnection,
