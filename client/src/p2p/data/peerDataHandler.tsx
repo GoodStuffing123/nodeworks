@@ -1,11 +1,14 @@
-import { DataConnection } from "peerjs";
-import { peerConnections } from "../webConnect";
+import { ConnectedPeer } from "../types";
+import { connectedPeers } from "../webConnect";
 
-import { DataPackage, PeerListener } from "./types";
+import { DataPackage, PeerListener, PeerListenerCallback } from "./types";
 
 const peerListeners: PeerListener[] = [];
 
-export const addPeerListener = (type: string, callback: Function) => {
+export const addPeerListener = (
+  type: string,
+  callback: PeerListenerCallback,
+) => {
   const newListener: PeerListener = { type, callback };
   peerListeners.push(newListener);
   return newListener;
@@ -19,18 +22,67 @@ export const removePeerListener = (oldListener: PeerListener) => {
   }
 };
 
-export const broadcast = (data: DataPackage) => {
-  peerConnections.forEach((peerConnection) => {
-    peerConnection.send(data);
+export const broadcast = (
+  data: DataPackage,
+  connectionList: ConnectedPeer[] = connectedPeers,
+) => {
+  if (!data.chainHistory) {
+    data.chainHistory = [];
+  }
+
+  connectionList.forEach((peerConnection) => {
+    if (
+      peerConnection.user &&
+      !data.chainHistory.includes(peerConnection.user.index)
+    ) {
+      send(data, peerConnection);
+    }
   });
 };
 
-const handleData = (data: DataPackage, peerConnection: DataConnection) => {
+export const send = async (
+  data: DataPackage,
+  peerConnection: ConnectedPeer,
+  responseCode?: string,
+) => {
+  peerConnection.connection.send({
+    ...data,
+    responseCode,
+  });
+};
+
+let responseCode = 0;
+export const sendWithResponse = async (
+  data: DataPackage,
+  connectedPeer: ConnectedPeer,
+  callback: PeerListenerCallback,
+) => {
+  const responseCodeString = responseCode.toString();
+
+  send(data, connectedPeer, responseCodeString);
+
+  const listener = addPeerListener(
+    responseCodeString,
+    (data, connectedPeer) => {
+      callback(data, connectedPeer);
+
+      removePeerListener(listener);
+    },
+  );
+
+  responseCode++;
+};
+
+const handleData = (data: DataPackage, peerConnection: ConnectedPeer) => {
   const activeListeners = peerListeners.filter(
     (listener) => data.type === listener.type,
   );
-  activeListeners.forEach((listener) => {
-    listener.callback(data.payload, peerConnection);
+  activeListeners.forEach(async (listener) => {
+    const res = await listener.callback(data, peerConnection);
+
+    if (data.responseCode) {
+      send({ type: data.responseCode, payload: res }, peerConnection);
+    }
   });
 };
 

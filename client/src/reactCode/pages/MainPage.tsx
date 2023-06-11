@@ -1,26 +1,36 @@
-import React, { Dispatch, SetStateAction, useContext } from "react";
-import { DataConnection } from "peerjs";
-// import { PeerContext } from "../components/Context";
+import React, { Dispatch, SetStateAction } from "react";
+import PeerConnectionsList from "../components/PeerConnectionsList";
+import PeerVisualizer from "../components/PeerVisualizer";
+
+import { ConnectedPeer } from "../../p2p/types";
 
 import styled from "styled-components";
 
-const MainPageStyles = styled.div``;
+const MainPageStyles = styled.div`
+  .peer-data-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+`;
 
 const MainPage = ({
-  peerConnections,
-  setPeerConnections,
+  connectedPeers,
 }: {
-  peerConnections: any[];
-  setPeerConnections: Dispatch<SetStateAction<DataConnection[]>>;
+  connectedPeers: ConnectedPeer[];
+  setPeerConnections: Dispatch<SetStateAction<ConnectedPeer[]>>;
 }) => {
   return (
     <MainPageStyles>
-      <h1>Main Page!</h1>
+      <h1 className="popup-animation">Hello, GoodStuffing123</h1>
 
-      <div className="connected-peers">
-        {peerConnections.map((peerConnection) => (
-          <p key={peerConnection.peer}>{peerConnection.peer}</p>
-        ))}
+      <div className="peer-data-container">
+        <div>
+          <PeerConnectionsList connectedPeers={connectedPeers} />
+        </div>
+
+        <div>
+          <PeerVisualizer connectedPeers={connectedPeers} />
+        </div>
       </div>
     </MainPageStyles>
   );

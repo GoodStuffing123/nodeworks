@@ -1,29 +1,55 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { DataConnection } from "peerjs";
+import React, { useEffect, useState } from "react";
 
 import Router from "./Router";
 import LoadingSplash from "./components/LoadingSplash";
 // import Simulation from "./simulator/Simulation";
 
-import { PeerContext } from "./components/Context";
+// import { PeerContext } from "./components/Context";
 
 import { connect, disconnect } from "../p2p/webConnect";
 
-export let setPeerConnections: (value: DataConnection[]) => void;
+import { ConnectedPeer } from "../p2p/types";
+
+export let setConnectedPeers: (value: ConnectedPeer[]) => void;
 
 const Connect = () => {
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(true);
 
-  const connectionsState = useState<DataConnection[]>([]);
-  const peerConnections = connectionsState[0];
-  setPeerConnections = (value) => {
-    connectionsState[1]([...value]);
+  const peersState = useState<ConnectedPeer[]>([
+    // {
+    //   user: {
+    //     index: [-1, -1],
+    //     publicKey: { k: "0" },
+    //     discoveredAt: new Date(),
+    //     lastConnection: new Date(),
+    //   },
+    //   // @ts-ignore
+    //   connection: { peer: "0" },
+    // },
+    // {
+    //   user: {
+    //     index: [0, -1],
+    //     publicKey: { k: "1" },
+    //     discoveredAt: new Date(),
+    //     lastConnection: new Date(),
+    //   },
+    //   // @ts-ignore
+    //   connection: { peer: "1" },
+    // },
+    // {
+    //   user: {
+    //     index: [1, -1],
+    //     publicKey: { k: "2" },
+    //     discoveredAt: new Date(),
+    //     lastConnection: new Date(),
+    //   },
+    //   // @ts-ignore
+    //   connection: { peer: "2" },
+    // },
+  ]);
+  const connectedPeers = peersState[0];
+  setConnectedPeers = (value) => {
+    peersState[1]([...value]);
   };
 
   const [isCentral, setIsCentral] = useState(false);
@@ -41,16 +67,16 @@ const Connect = () => {
   };
 
   useEffect(() => {
-    if (peerConnections.length) {
+    if (connectedPeers.length) {
       setConnected(true);
     } else {
       setConnected(false);
     }
-  }, [peerConnections]);
+  }, [connectedPeers]);
 
   return connected ? (
     // <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
-    <Router {...{ peerConnections, setPeerConnections }} />
+    <Router {...{ connectedPeers, setPeerConnections: setConnectedPeers }} />
   ) : (
     // </PeerContext.Provider>
     <>

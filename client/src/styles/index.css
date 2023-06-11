@@ -1,9 +1,73 @@
 html {
-  background-color: black;
   color: white;
+
+  font-family: sans-serif;
 }
 
 body {
-  padding: 2vh 5vw;
+  padding: 0 5vw;
   margin: 0;
+}
+
+.bordered-container {
+  margin: 20px;
+  padding: 20px;
+
+  border: 2px solid #444444;
+  border-radius: 20px;
+}
+
+@keyframes popup-animation {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+.popup-animation {
+  transform: translateY(20px);
+  opacity: 0;
+
+  animation: popup-animation 0.5s ease-out forwards;
+}
+
+.delay-1 {
+  animation-delay: 0.1s;
+}
+
+.delay-2 {
+  animation-delay: 0.2s;
+}
+
+.delay-3 {
+  animation-delay: 0.3s;
+}
+
+.delay-4 {
+  animation-delay: 0.4s;
+}
+
+.delay-5 {
+  animation-delay: 0.5s;
+}
+
+.delay-6 {
+  animation-delay: 0.6s;
+}
+
+.delay-7 {
+  animation-delay: 0.7s;
+}
+
+.delay-8 {
+  animation-delay: 0.8s;
+}
+
+.delay-9 {
+  animation-delay: 0.9s;
 }

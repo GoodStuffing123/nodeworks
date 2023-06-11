@@ -1,15 +1,16 @@
 // import axios from "axios";
-import Peer, { DataConnection } from "peerjs";
-import { setPeerConnections } from "../reactCode/Connect";
-import handleData from "./data/peerDataHandler";
-import { DataPackage } from "./data/types";
+import Peer from "peerjs";
+import { setConnectedPeers } from "../reactCode/Connect";
+import handleData, { send } from "./data/peerDataHandler";
+import initializeGlobalPeerDataHandling from "./data/initializeGlabalPeerDataHandling";
+import { getData, setData } from "./database";
+import "./data/pingHandler";
 
-// Declare types
-
-export interface ConnectedPeer {
-  id: string;
-  lastPing: number;
-}
+import { ConnectedPeer } from "./types";
+import { DataPackage, dataTypes } from "./data/types";
+import { createUser, generateUser } from "./data/user";
+import { Self } from "./database/types";
+import { exportCryptoKeyPair, generateKeys } from "./security/encryption";
 
 // Declare global variables
 
@@ -17,7 +18,7 @@ export interface ConnectedPeer {
 // const centralServer = "http://localhost:9000";
 
 export let peer: Peer = null;
-export let peerConnections: DataConnection[] = [];
+export let connectedPeers: ConnectedPeer[] = [];
 
 // Connects user to peers
 export const connect = (peerName?: string) => {
@@ -25,30 +26,54 @@ export const connect = (peerName?: string) => {
   peer = new Peer(peerName || null);
 
   // Wait for initialization
-  peer.on("open", async (id) => {
+  peer.on("open", async () => {
     console.log("My ID: " + peer.id);
 
-    if (peerName !== process.env.REACT_APP_CENTRAL_PEER_NAME) {
-      const initialPeerConnection = peer.connect(
-        process.env.REACT_APP_CENTRAL_PEER_NAME,
-      );
+    // Set up base data listeners
+    initializeGlobalPeerDataHandling();
 
-      initialPeerConnection.on("open", () => {
+    // Connect to central peer if this is not the central peer
+    if (peerName !== process.env.REACT_APP_CENTRAL_PEER_NAME) {
+      const initialPeerConnection: ConnectedPeer = {
+        connection: peer.connect(process.env.REACT_APP_CENTRAL_PEER_NAME),
+        user: null,
+      };
+
+      initialPeerConnection.connection.on("open", async () => {
         console.log("CONNECTED TO CENTRAL PEER");
 
-        peerConnections.push(initialPeerConnection);
-        setPeerConnections(peerConnections);
+        connectedPeers.push(initialPeerConnection);
+        setConnectedPeers(connectedPeers);
 
-        initialPeerConnection.on("close", () => {
-          console.log("DISCONNECTED FROM CENTRAL PEER");
+        initialPeerConnection.connection.on("error", (error) =>
+          console.error(error),
+        );
 
-          peerConnections.splice(
-            peerConnections.indexOf(initialPeerConnection),
-            1,
-          );
-          setPeerConnections(peerConnections);
+        initialPeerConnection.connection.on("data", (data: DataPackage) => {
+          handleData(data, initialPeerConnection);
+        });
+
+        if (!getData(["self"])) {
+          createUser(initialPeerConnection);
+        }
+
+        initialPeerConnection.connection.on("close", () =>
+          handleDisconnect(initialPeerConnection),
+        );
+
+        initialPeerConnection.connection.on("error", () => {
+          console.error("ERROR THROWN FROM CENTRAL PEER");
         });
       });
+    } else {
+      const encryptionKeys = await exportCryptoKeyPair(generateKeys());
+      setData(
+        ["self"],
+        generateUser({
+          index: [0, 0],
+          ...encryptionKeys,
+        }),
+      );
     }
 
     // Request peer addresses from central server
@@ -77,33 +102,59 @@ export const connect = (peerName?: string) => {
     //     });
 
     //     // Add new connection to list of peer connections
-    //     peerConnections.push(peerConnection);
+    //     connectedPeers.push(peerConnection);
     //     // Update React state with new peer
-    //     setPeerConnections(peerConnections);
+    //     setPeerConnections(connectedPeers);
     //   });
 
     //   peerConnection.on("close", () => {
-    //     peerConnections.splice(peerConnections.indexOf(peerConnection), 1);
+    //     connectedPeers.splice(connectedPeers.indexOf(peerConnection), 1);
     //   });
     // });
 
     // Listen for incoming connections from unconnected peers
     peer.on("connection", (peerConnection) => {
-      peerConnection.on("data", (data: DataPackage) => {
-        handleData(data, peerConnection);
+      const connectedPeer: ConnectedPeer = {
+        connection: peerConnection,
+        user: null,
+      };
+
+      connectedPeer.connection.on("error", (error) => console.error(error));
+
+      connectedPeer.connection.on("data", (data: DataPackage) => {
+        handleData(data, connectedPeer);
       });
 
-      peerConnection.on("close", () => {
-        peerConnections.splice(peerConnections.indexOf(peerConnection), 1);
-        setPeerConnections(peerConnections);
+      connectedPeer.connection.on("open", () => {
+        console.log("CONNECTED TO " + connectedPeer.connection.peer);
+
+        // Add new connection to list of peer connections
+        connectedPeers.push(connectedPeer);
+        // Update React state with new peer
+        setConnectedPeers(connectedPeers);
+
+        const self: Self = getData(["self"]);
+        if (self) {
+          const publicSelf = {
+            index: self.index,
+            publicKey: self.publicKey,
+          };
+
+          send(
+            {
+              type: dataTypes.SEND_USER,
+              payload: publicSelf,
+            },
+            connectedPeer,
+          );
+        } else {
+          console.error("I don't have a user!");
+        }
       });
 
-      console.log("CONNECTED TO " + peerConnection.peer);
-
-      // Add new connection to list of peer connections
-      peerConnections.push(peerConnection);
-      // Update React state with new peer
-      setPeerConnections(peerConnections);
+      connectedPeer.connection.on("close", () =>
+        handleDisconnect(connectedPeer),
+      );
     });
   });
 };
@@ -115,7 +166,12 @@ export const disconnect = () => {
 
   // Reset variables
   peer = null;
-  peerConnections = [];
+  connectedPeers = [];
   // Update react state
-  setPeerConnections(peerConnections);
+  setConnectedPeers(connectedPeers);
+};
+
+export const handleDisconnect = (connectedPeer: ConnectedPeer) => {
+  connectedPeers.splice(connectedPeers.indexOf(connectedPeer), 1);
+  setConnectedPeers(connectedPeers);
 };
