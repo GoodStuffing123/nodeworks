@@ -15,8 +15,6 @@ export const findFreeIndex = () => {
     }
   });
 
-  console.log(foundIndex);
-
   return foundIndex;
 };
 

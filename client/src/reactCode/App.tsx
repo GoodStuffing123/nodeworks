@@ -1,25 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import WindowControls from "./components/WindowControls";
 import Connect from "./Connect";
 
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, GlobalStyleComponent } from "styled-components";
 
-const GlobalStyles = createGlobalStyle`
+interface StyleProps {
+  isFullScreen: boolean;
+}
+
+const GlobalStyles = createGlobalStyle<StyleProps>`
   html {
-    background-color: ${
-      window.process?.versions["electron"] ? "#00000070" : "#000000"
-    };
+    background-color: ${({ isFullScreen }) =>
+      window.process?.versions["electron"] && !isFullScreen
+        ? "#00000070"
+        : "#000000"};
   }
 `;
 
 const App = () => {
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
   return (
     <>
-      <GlobalStyles />
+      <GlobalStyles isFullScreen={isFullScreen} />
 
-      {window.process?.versions["electron"] && <WindowControls />}
+      {window.process?.versions["electron"] && (
+        <WindowControls
+          isFullScreen={isFullScreen}
+          setIsFullScreen={setIsFullScreen}
+        />
+      )}
 
-      <Connect />
+      <div id="app-content">
+        <Connect />
+      </div>
     </>
   );
 };

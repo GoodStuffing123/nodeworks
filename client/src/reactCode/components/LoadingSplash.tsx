@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import styled from "styled-components";
 
+import { connectedPeers } from "../../p2p/connection/webConnect";
 import { distance } from "../../utility/math";
+
+import { Self } from "../../p2p/database/types";
+
+import styled from "styled-components";
 
 // Set styles for Canvas
 const Canvas = styled.canvas`
@@ -129,7 +133,11 @@ const draw = (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
   ctx.font = "25px monospace";
   ctx.textBaseline = "bottom";
   ctx.textAlign = "center";
-  ctx.fillText("Connecting", center.x, Canvas.height - 100);
+  ctx.fillText(
+    !connectedPeers.length ? "Connecting" : "Registering",
+    center.x,
+    Canvas.height - 100,
+  );
 
   // Visualize delta time for debugging
   // ctx.font = "16px monospace";

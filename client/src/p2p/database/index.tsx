@@ -1,9 +1,9 @@
-import { connectedPeers } from "../webConnect";
-import { setConnectedPeers } from "../../reactCode/Connect";
+import { connectedPeers } from "../connection/webConnect";
+import { setConnectedPeers, setSelf } from "../../reactCode/Connect";
 
 import { Self, UserDocument } from "./types";
 import { Vector2 } from "../indexing/types";
-import { ConnectedPeer } from "../types";
+import { ConnectedPeer } from "../connection/types";
 
 const data: {
   users: {
@@ -29,8 +29,6 @@ export const getData = (path: (string | number)[]) => {
     }
   }
 
-  console.log("Gotten data", dataToGet);
-
   return dataToGet;
 };
 
@@ -48,6 +46,10 @@ export const setData = (path: (string | number)[], value: any) => {
 
       dataToChange = dataToChange[pathPos];
     }
+  }
+
+  if (path[0] === "self") {
+    setSelf(data.self);
   }
 };
 

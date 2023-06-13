@@ -6,14 +6,23 @@ import LoadingSplash from "./components/LoadingSplash";
 
 // import { PeerContext } from "./components/Context";
 
-import { connect, disconnect } from "../p2p/webConnect";
+import { connect, disconnect } from "../p2p/connection/webConnect";
 
-import { ConnectedPeer } from "../p2p/types";
+import { ConnectedPeer } from "../p2p/connection/types";
+import { Self } from "../p2p/database/types";
+import UsernameForm from "./components/UsernameForm";
 
 export let setConnectedPeers: (value: ConnectedPeer[]) => void;
+export let setSelf: (value: Self) => void;
 
 const Connect = () => {
   const [connected, setConnected] = useState(true);
+
+  const selfState = useState<Self>();
+  const self = selfState[0];
+  setSelf = (value) => {
+    selfState[1](value);
+  };
 
   const peersState = useState<ConnectedPeer[]>([
     // {
@@ -52,12 +61,22 @@ const Connect = () => {
     peersState[1]([...value]);
   };
 
-  const [isCentral, setIsCentral] = useState(false);
+  const [username, setUsername] = useState("");
+  const [connecting, setConnecting] = useState(false);
 
-  const startConnection = () => {
+  const startConnection = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     console.log("CONNECTING");
 
-    connect(isCentral ? process.env.REACT_APP_CENTRAL_PEER_NAME : null);
+    connect(
+      username,
+      username === "GoodStuffing"
+        ? process.env.REACT_APP_CENTRAL_PEER_NAME
+        : null,
+    );
+
+    setConnecting(true);
 
     return () => {
       console.log("DISCONNECTING");
@@ -74,24 +93,20 @@ const Connect = () => {
     }
   }, [connectedPeers]);
 
-  return connected ? (
+  return connected && self ? (
     // <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
-    <Router {...{ connectedPeers, setPeerConnections: setConnectedPeers }} />
+    <Router
+      {...{ self, connectedPeers, setPeerConnections: setConnectedPeers }}
+    />
+  ) : // </PeerContext.Provider>
+  connecting ? (
+    <LoadingSplash />
   ) : (
-    // </PeerContext.Provider>
-    <>
-      <LoadingSplash />
-
-      <input
-        type="checkbox"
-        checked={isCentral}
-        onChange={() => setIsCentral(!isCentral)}
-      />
-      <span>is central</span>
-
-      <br />
-      <button onClick={startConnection}>Connect</button>
-    </>
+    <UsernameForm
+      username={username}
+      setUsername={setUsername}
+      onSubmit={startConnection}
+    />
   );
   // return <Simulation />;
 };

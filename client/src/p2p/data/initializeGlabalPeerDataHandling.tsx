@@ -8,6 +8,10 @@ import {
 import { dataTypes } from "./types";
 
 const initializeGlobalPeerDataHandling = () => {
+  addPeerListener(dataTypes.TEST, (data) => {
+    console.log("TEST MESSAGE RECIEVED: ", data.payload);
+  });
+
   addPeerListener(dataTypes.PING, () => {
     // console.log("PONG");
 

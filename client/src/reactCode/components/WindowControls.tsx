@@ -57,9 +57,13 @@ const WindowControlsStyles = styled.div`
   }
 `;
 
-const WindowControls = () => {
-  const [isFullScreen, setIsFullScreen] = useState(false);
-
+const WindowControls = ({
+  isFullScreen,
+  setIsFullScreen,
+}: {
+  isFullScreen: boolean;
+  setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   return (
     ipcRenderer && (
       <WindowControlsStyles>

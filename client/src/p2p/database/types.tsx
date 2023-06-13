@@ -1,7 +1,7 @@
 import { Vector2 } from "../indexing/types";
 
 export interface UserDocument {
-  // name: string;
+  name: string;
   publicKey: JsonWebKey;
   index: Vector2;
   // trust: number;
@@ -11,6 +11,7 @@ export interface UserDocument {
 }
 
 export interface Self {
+  name: string;
   index: Vector2;
   createdAt: Date;
 

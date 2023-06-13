@@ -1,5 +1,5 @@
 import { Vector2 } from "../indexing/types";
-import { ConnectedPeer } from "../types";
+import { ConnectedPeer } from "../connection/types";
 
 export interface DataPackage {
   type: string;
@@ -19,6 +19,7 @@ export interface PeerListener {
 }
 
 export const dataTypes = {
+  TEST: "TEST",
   PING: "PING",
 
   GET_PEER_DATA: "GET_PEER_DATA",
@@ -27,4 +28,6 @@ export const dataTypes = {
   REGISTER_USER: "REGISTER_USER",
   SEND_USER: "SEND_USER",
   SYNC_USER_DATABASE: "SYNC_USER_DATABASE",
+
+  CHAT_MESSAGE: "CHAT_MESSAGE",
 };

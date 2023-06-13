@@ -1,12 +1,16 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, screen } = require("electron");
 
 const path = require("path");
 const isDev = require("electron-is-dev");
 
 const loadMainWindow = () => {
+  const primaryDisplayBounds = screen.getPrimaryDisplay().bounds;
+
   const mainWindow = new BrowserWindow({
-    width: 1440,
-    height: 810,
+    width: Math.round(primaryDisplayBounds.width / 1.25),
+    height: Math.round(primaryDisplayBounds.height / 1.25),
+    minWidth: 400,
+    minHeight: 300,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

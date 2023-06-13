@@ -1,4 +1,4 @@
-import { ConnectedPeer } from "../types";
+import { ConnectedPeer } from "../connection/types";
 import { send } from "../data/peerDataHandler";
 import { DataPackage, dataTypes } from "../data/types";
 

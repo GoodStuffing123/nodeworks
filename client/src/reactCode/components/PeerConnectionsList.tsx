@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import InfoPopup from "./InfoPopup";
 
-import { ConnectedPeer } from "../../p2p/types";
+import { ConnectedPeer } from "../../p2p/connection/types";
 
 import styled from "styled-components";
 
@@ -32,7 +32,7 @@ const PeerConnectionsList = ({
     <PeerConnectionsListStyles className="bordered-container popup-animation delay-2">
       {connectedPeers.map((peer) => (
         <li key={peer.connection.peer} onClick={() => setSelectedPeer(peer)}>
-          {peer.connection.peer}
+          {peer.user?.name || "connecting..."}
         </li>
       ))}
 
@@ -40,11 +40,14 @@ const PeerConnectionsList = ({
         <InfoPopup position={[0, 0]} close={() => setSelectedPeer(null)}>
           {selectedPeer.user ? (
             <>
+              <p>Name: {selectedPeer.user.name}</p>
+
               <p>
                 Index: {selectedPeer.user.index[0]},{" "}
                 {selectedPeer.user.index[1]}
               </p>
-              <p>Public Key: {selectedPeer.user.publicKey.n}</p>
+
+              <p>Public Key: {selectedPeer.user.publicKey.n.slice(0, 9)}...</p>
             </>
           ) : (
             <p>Peer has no user registry.</p>

@@ -1,7 +1,12 @@
-import { ConnectedPeer } from "../types";
-import { connectedPeers } from "../webConnect";
+import { connectedPeers } from "../connection/webConnect";
 
-import { DataPackage, PeerListener, PeerListenerCallback } from "./types";
+import { ConnectedPeer } from "../connection/types";
+import {
+  DataPackage,
+  dataTypes,
+  PeerListener,
+  PeerListenerCallback,
+} from "./types";
 
 const peerListeners: PeerListener[] = [];
 
@@ -42,10 +47,10 @@ export const broadcast = (
 
 export const send = async (
   data: DataPackage,
-  peerConnection: ConnectedPeer,
+  connectedPeer: ConnectedPeer,
   responseCode?: string,
 ) => {
-  peerConnection.connection.send({
+  connectedPeer.connection.send({
     ...data,
     responseCode,
   });
@@ -57,14 +62,22 @@ export const sendWithResponse = async (
   connectedPeer: ConnectedPeer,
   callback: PeerListenerCallback,
 ) => {
+  // if (data.type !== dataTypes.PING) {
+  //   console.log("SENDING REQUEST AND EXPECTING A RESPONSE", data);
+  // }
+
   const responseCodeString = responseCode.toString();
 
   send(data, connectedPeer, responseCodeString);
 
   const listener = addPeerListener(
     responseCodeString,
-    (data, connectedPeer) => {
-      callback(data, connectedPeer);
+    (cbdata, connectedPeer) => {
+      // if (data.type !== dataTypes.PING) {
+      //   console.log("RESPONSE RECIEVED", data);
+      // }
+
+      callback(cbdata, connectedPeer);
 
       removePeerListener(listener);
     },
@@ -74,9 +87,12 @@ export const sendWithResponse = async (
 };
 
 const handleData = (data: DataPackage, peerConnection: ConnectedPeer) => {
+  // console.log("Data type: ", data.type);
+
   const activeListeners = peerListeners.filter(
     (listener) => data.type === listener.type,
   );
+
   activeListeners.forEach(async (listener) => {
     const res = await listener.callback(data, peerConnection);
 
