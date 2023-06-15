@@ -71,7 +71,7 @@ const Connect = () => {
 
     connect(
       username,
-      username === "GoodStuffing"
+      username === process.env.REACT_APP_CENTRAL_PEER_NAME
         ? process.env.REACT_APP_CENTRAL_PEER_NAME
         : null,
     );

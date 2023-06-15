@@ -5,7 +5,6 @@ import initializeGlobalPeerDataHandling from "../data/initializeGlabalPeerDataHa
 import { setData } from "../database";
 import handleConnection from "./handleConnection";
 import handleCentralPeerOpen from "./handleCentralOpen";
-import { generateUser } from "../data/user";
 import { exportCryptoKeyPair, generateKeys } from "../security/encryption";
 import "../data/pingHandler";
 
