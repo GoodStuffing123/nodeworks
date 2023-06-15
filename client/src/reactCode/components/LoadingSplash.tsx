@@ -12,7 +12,7 @@ const Canvas = styled.canvas`
   position: absolute;
   left: 0;
   top: 0;
-  z-index: -1;
+  /* z-index: -1; */
 `;
 
 // Declare interface for a single animated node

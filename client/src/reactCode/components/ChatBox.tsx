@@ -16,8 +16,8 @@ interface ChatMessage {
 }
 
 const ChatBoxStyles = styled.div`
-  .chat-message-container {
-    height: 40vh;
+  .chat-messages-container {
+    height: 20vh;
     overflow-y: scroll;
 
     .chat-message {
@@ -30,7 +30,9 @@ const ChatBoxStyles = styled.div`
       }
 
       p {
+        font-family: monospace;
         overflow-wrap: break-word;
+        white-space: pre-wrap;
         margin: 0;
       }
     }
@@ -46,6 +48,7 @@ const ChatBox = ({ self }: { self: Self }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
+  const chatMessagesContainerRef = useRef<HTMLDivElement>();
   const messageBoxRef = useRef<HTMLTextAreaElement>();
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -83,9 +86,9 @@ const ChatBox = ({ self }: { self: Self }) => {
   }, [messages]);
 
   return (
-    <ChatBoxStyles className="bordered-container">
+    <ChatBoxStyles className="bordered-container popup-animation delay-4">
       <div className="verticle-bordered-container">
-        <div className="chat-message-container">
+        <div ref={chatMessagesContainerRef} className="chat-messages-container">
           {messages.map((message, i) => (
             <div key={i} className="chat-message">
               <span className="username">{message.username}</span>

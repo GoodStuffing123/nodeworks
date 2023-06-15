@@ -11,6 +11,7 @@ const loadMainWindow = () => {
     height: Math.round(primaryDisplayBounds.height / 1.25),
     minWidth: 400,
     minHeight: 300,
+    center: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -19,6 +20,7 @@ const loadMainWindow = () => {
     frame: false,
     vibrancy: "popover",
     visualEffectState: "active",
+    backgrounsMaterial: "acrylic",
     fullscreenable: true,
   });
 

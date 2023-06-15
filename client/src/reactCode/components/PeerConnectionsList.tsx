@@ -12,6 +12,7 @@ const PeerConnectionsListStyles = styled.ul`
     margin: 5px;
     background-color: #181818;
     border-radius: 5px;
+    cursor: pointer;
 
     transition: background-color 0.3s;
 
@@ -30,6 +31,8 @@ const PeerConnectionsList = ({
 
   return (
     <PeerConnectionsListStyles className="bordered-container popup-animation delay-2">
+      <h3>Connected users</h3>
+
       {connectedPeers.map((peer) => (
         <li key={peer.connection.peer} onClick={() => setSelectedPeer(peer)}>
           {peer.user?.name || "connecting..."}

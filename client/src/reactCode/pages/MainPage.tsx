@@ -12,6 +12,10 @@ const MainPageStyles = styled.div`
   .peer-data-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
+
+    & > div {
+      width: 40vw;
+    }
   }
 `;
 
@@ -35,7 +39,10 @@ const MainPage = ({
         </div>
 
         <div>
-          <PeerVisualizer connectedPeers={connectedPeers} />
+          <div className="bordered-container popup-animation delay-5">
+            <h3>Position in world</h3>
+            <PeerVisualizer connectedPeers={connectedPeers} />
+          </div>
         </div>
       </div>
     </MainPageStyles>

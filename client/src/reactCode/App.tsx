@@ -2,28 +2,24 @@ import React, { useState } from "react";
 import WindowControls from "./components/WindowControls";
 import Connect from "./Connect";
 
-import { createGlobalStyle, GlobalStyleComponent } from "styled-components";
+import GlobalStylesProvider from "styles/GlobalStylesProvider";
 
-interface StyleProps {
-  isFullScreen: boolean;
-}
-
-const GlobalStyles = createGlobalStyle<StyleProps>`
-  html {
-    background-color: ${({ isFullScreen }) =>
-      window.process?.versions["electron"] && !isFullScreen
-        ? "#00000070"
-        : "#000000"};
-  }
-`;
+import { DefaultTheme } from "styled-components";
 
 const App = () => {
+  const [theme, setTheme] = useState<DefaultTheme>({
+    palette: {
+      text: "#ffffff",
+      background: "#000000",
+      backgroundTransparency: "d0",
+      primary: "#444444",
+      secondary: "#bbbbbb",
+    },
+  });
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   return (
-    <>
-      <GlobalStyles isFullScreen={isFullScreen} />
-
+    <GlobalStylesProvider theme={theme} isFullScreen={isFullScreen}>
       {window.process?.versions["electron"] && (
         <WindowControls
           isFullScreen={isFullScreen}
@@ -33,8 +29,18 @@ const App = () => {
 
       <div id="app-content">
         <Connect />
+
+        <span
+          style={{
+            position: "absolute",
+            left: "8px",
+            bottom: "8px",
+          }}
+        >
+          v0.0.1-pre
+        </span>
       </div>
-    </>
+    </GlobalStylesProvider>
   );
 };
 

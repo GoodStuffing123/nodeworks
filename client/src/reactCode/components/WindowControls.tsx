@@ -7,9 +7,14 @@ const { ipcRenderer } = window.require
 
 import styled from "styled-components";
 
-const WindowControlsStyles = styled.div`
+interface StyleProps {
+  isFullScreen: boolean;
+}
+
+const WindowControlsStyles = styled.div<StyleProps>`
   top: 0;
   height: 35px;
+  background: ${({ isFullScreen }) => (isFullScreen ? "#000000" : "none")};
 
   .window-control-bar {
     display: flex;
@@ -66,7 +71,7 @@ const WindowControls = ({
 }) => {
   return (
     ipcRenderer && (
-      <WindowControlsStyles>
+      <WindowControlsStyles isFullScreen={isFullScreen}>
         <div className="window-control-bar">
           <div className="window-control-button">
             <Icon

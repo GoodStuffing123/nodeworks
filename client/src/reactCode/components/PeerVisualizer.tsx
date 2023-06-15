@@ -13,31 +13,82 @@ const draw = (
   center: Vector2,
   connectedPeers: ConnectedPeer[],
 ) => {
-  const self = getData(["self"]);
+  const self: Self = getData(["self"]);
 
   ctx.clearRect(0, 0, Canvas.width, Canvas.height);
 
+  ctx.save();
+  ctx.translate(center[0], center[1]);
+
+  ctx.strokeStyle = "#888888";
+  ctx.lineWidth = 2;
+
+  const gridLineCount = 5;
+  const halvedGridLineCount = Math.floor(gridLineCount / 2);
+  const canvasGridPosMultiplier = Canvas.width / gridLineCount;
+
+  for (let x = -halvedGridLineCount; x <= halvedGridLineCount; x++) {
+    const posX = x * canvasGridPosMultiplier;
+
+    ctx.beginPath();
+    ctx.moveTo(posX, -center[1]);
+    ctx.lineTo(posX, center[1]);
+    ctx.stroke();
+  }
+
+  for (let y = -2; y <= 2; y++) {
+    const posY = y * canvasGridPosMultiplier;
+
+    ctx.beginPath();
+    ctx.moveTo(-center[0], posY);
+    ctx.lineTo(center[0], posY);
+    ctx.stroke();
+  }
+
   ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#202020";
+  ctx.lineWidth = 24;
 
   ctx.beginPath();
-  ctx.arc(center[0], center[1], 10, 0, Math.PI * 2);
+  ctx.arc(0, 0, canvasGridPosMultiplier / 3, 0, Math.PI * 2);
+  ctx.stroke();
   ctx.fill();
+
+  ctx.fillStyle = "#000000";
+  ctx.font = `${0.15 * canvasGridPosMultiplier}px monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(`${self.index[0]},${self.index[1]}`, 0, 0);
 
   connectedPeers.forEach((connectedPeer, i) => {
     const peerIndex = connectedPeer.user?.index;
 
     if (peerIndex && self?.index) {
+      const nodePos: Vector2 = [
+        (peerIndex[0] - self.index[0]) * canvasGridPosMultiplier,
+        (peerIndex[1] - self.index[1]) * canvasGridPosMultiplier,
+      ];
+
+      ctx.fillStyle = "#ffffff";
+
       ctx.beginPath();
       ctx.arc(
-        center[0] + (peerIndex[0] - self.index[0]) * 50,
-        center[1] + (peerIndex[1] - self.index[1]) * 50,
-        8,
+        (peerIndex[0] - self.index[0]) * canvasGridPosMultiplier,
+        (peerIndex[1] - self.index[1]) * canvasGridPosMultiplier,
+        canvasGridPosMultiplier / 4,
         0,
         Math.PI * 2,
       );
+      ctx.stroke();
       ctx.fill();
+
+      ctx.fillStyle = "#000000";
+
+      ctx.fillText(`${peerIndex[0]},${peerIndex[1]}`, nodePos[0], nodePos[1]);
     }
   });
+
+  ctx.restore();
 };
 
 const PeerVisualizerStyles = styled.canvas`
@@ -62,8 +113,8 @@ const PeerVisualizer = ({
   useEffect(() => {
     const Canvas = canvasRef.current;
 
-    Canvas.style.width = "200px";
-    Canvas.style.height = "200px";
+    Canvas.style.width = "300px";
+    Canvas.style.height = "300px";
 
     Canvas.width = parseInt(Canvas.style.width) * 2;
     Canvas.height = parseInt(Canvas.style.height) * 2;
