@@ -24,7 +24,7 @@ const routes = (app) => {
     //   }
     // }
 
-    res.send(addresses);
+    res.status(200).send(addresses);
 
     if (req.query.peerId) {
       addresses.push(req.query.peerId);

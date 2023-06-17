@@ -15,7 +15,8 @@ import { setUsername } from "../data/user";
 // Declare global variables
 
 // const centralServer = "https://decentralized-server.uc.r.appspot.com";
-const centralServer = "http://localhost:9000";
+// const centralServer = "http://localhost:9000";
+const centralServer = "https://plain-bee-tights.cyclic.app";
 
 export let peer: Peer = null;
 export let connectedPeers: ConnectedPeer[] = [];
@@ -44,6 +45,8 @@ export const connect = (name: string, peerId?: string) => {
     const addresses: string[] = (
       await axios.get(`${centralServer}/?peerId=${peer.id}`)
     ).data;
+
+    console.log("retrived addresses");
 
     // Set up base data listeners
     initializeGlobalPeerDataHandling();
