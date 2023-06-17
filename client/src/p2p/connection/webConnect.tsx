@@ -16,7 +16,7 @@ import { setUsername } from "../data/user";
 
 // const centralServer = "https://decentralized-server.uc.r.appspot.com";
 // const centralServer = "http://localhost:9000";
-const centralServer = "https://plain-bee-tights.cyclic.app";
+const centralServer = "https://nodeworks.cyclic.app";
 
 export let peer: Peer = null;
 export let connectedPeers: ConnectedPeer[] = [];

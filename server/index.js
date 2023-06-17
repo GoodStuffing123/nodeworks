@@ -5,7 +5,7 @@ require("dotenv").config();
 const routes = require("./routes/routes.js");
 
 const app = express();
-const port = process.env.PORT || "8080";
+const port = process.env.PORT || "3000";
 
 if (process.env.ENVIRONMENT !== "development") {
   app.use(expressRateLimit({
