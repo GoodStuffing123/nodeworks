@@ -8,47 +8,59 @@ import { Self, UserDocument } from "../database/types";
 import { ConnectedPeer } from "../connection/types";
 import { DataPackage, dataTypes } from "./types";
 
-export const createUser = (name: string, centralPeer: ConnectedPeer) => {
-  sendWithResponse(
-    {
-      type: dataTypes.FIND_FREE_INDEX,
-    },
-    centralPeer,
-    async (data) => {
-      const encryptionKeys = await exportCryptoKeyPair(generateKeys(true));
+let username: string;
+export const setUsername = (newUsername: string) => (username = newUsername);
 
-      const self: Self = {
-        name,
-        index: data.payload,
-        ...encryptionKeys,
-        createdAt: new Date(),
-      };
+export const createUser = async (
+  name: string,
+  connectedPeer: ConnectedPeer,
+) => {
+  await new Promise((resolve) =>
+    sendWithResponse(
+      {
+        type: dataTypes.FIND_FREE_INDEX,
+      },
+      connectedPeer,
+      async (data) => {
+        const encryptionKeys = await exportCryptoKeyPair(generateKeys(true));
 
-      const publicSelf: UserDocument = {
-        name: self.name,
-        index: self.index,
-        publicKey: self.publicKey,
+        const self: Self = {
+          name,
+          index: data.payload,
+          ...encryptionKeys,
+          createdAt: new Date(),
+        };
 
-        discoveredAt: null,
-        lastConnection: null,
-      };
+        const publicSelf: UserDocument = {
+          name: self.name,
+          index: self.index,
+          publicKey: self.publicKey,
 
-      sendWithResponse(
-        {
-          type: dataTypes.REGISTER_USER,
-          payload: publicSelf,
-          chainHistory: [self.index],
-        },
-        centralPeer,
-        ({ payload: error }) => {
-          if (error) {
-            console.error(error);
-          } else {
-            setData(["self"], self);
-          }
-        },
-      );
-    },
+          discoveredAt: null,
+          lastConnection: null,
+        };
+
+        sendWithResponse(
+          {
+            type: dataTypes.REGISTER_USER,
+            payload: publicSelf,
+            chainHistory: [self.index],
+          },
+          connectedPeer,
+          ({ payload: error }) => {
+            if (error) {
+              console.error(error);
+
+              resolve(false);
+            } else {
+              setData(["self"], self);
+
+              resolve(true);
+            }
+          },
+        );
+      },
+    ),
   );
 };
 
@@ -68,31 +80,36 @@ export const registerOtherUser = async (
 
   setUser(generateUser(data.payload), connectedPeer);
 
-  const syncPayload = {
-    users: getAllUsers(),
-    peerIds: connectedPeers.map((peer) => peer.connection.peer),
-  };
+  if (getData(["self"])) {
+    const syncPayload = {
+      users: getAllUsers(),
+      peerIds: connectedPeers.map((peer) => peer.connection.peer),
+    };
 
-  broadcast(
-    {
-      type: dataTypes.SYNC_USER_DATABASE,
-      payload: syncPayload,
-    },
-    [...connectedPeers].splice(
-      connectedPeers.findIndex(
-        (otherConnectedPeer) =>
-          connectedPeer.connection.peer === otherConnectedPeer.connection.peer,
+    broadcast(
+      {
+        type: dataTypes.SYNC_USER_DATABASE,
+        payload: syncPayload,
+      },
+      [...connectedPeers].splice(
+        connectedPeers.findIndex(
+          (otherConnectedPeer) =>
+            connectedPeer.connection.peer ===
+            otherConnectedPeer.connection.peer,
+        ),
       ),
-    ),
-  );
+    );
 
-  send(
-    {
-      type: dataTypes.SYNC_USER_DATABASE,
-      payload: syncPayload,
-    },
-    connectedPeer,
-  );
+    send(
+      {
+        type: dataTypes.SYNC_USER_DATABASE,
+        payload: syncPayload,
+      },
+      connectedPeer,
+    );
+  } else {
+    createUser(username, connectedPeer);
+  }
 };
 
 export const generateUser = (userData: any): UserDocument => ({
@@ -122,16 +139,14 @@ export const recieveConnectedUser = (
   }
 };
 
-export const syncUserDatabase = (
-  data: DataPackage,
-  connectedPeer: ConnectedPeer,
-  shouldConnect: boolean = false,
-) => {
+export const syncUserDatabase = (data: DataPackage) => {
   data.payload.users.forEach((user: UserDocument) => {
     if (!getUser(user.index)) {
       setUser(user);
     }
   });
+
+  console.log("Syncing User DB");
 
   data.payload.peerIds.forEach((peerId: string) => {
     connectToPeer(peerId);

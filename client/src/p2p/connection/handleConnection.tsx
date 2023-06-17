@@ -1,4 +1,4 @@
-import { connectedPeers } from "./webConnect";
+import { connectedPeers, peer } from "./webConnect";
 import { setConnectedPeers } from "../../reactCode/Connect";
 import handleDisconnect from "./handleDisconnect";
 import handleOpen from "./handleOpen";
@@ -6,23 +6,53 @@ import handleOpen from "./handleOpen";
 import { DataConnection } from "peerjs";
 import { ConnectedPeer } from "./types";
 
-const handleConnection = (peerConnection: DataConnection) => {
-  let connectedPeer: ConnectedPeer = {
-    connection: peerConnection,
-    user: null,
-  };
+const handleConnection = async (
+  peerConnection: DataConnection,
+  initiator = false,
+  name?: string,
+) => {
+  await new Promise((resolve) => {
+    let connectedPeer: ConnectedPeer = {
+      connection: peerConnection,
+      user: null,
+    };
 
-  // Add new connection to list of peer connections
-  connectedPeers.push(connectedPeer);
+    const peerErrorHandler = () => {
+      peer.removeListener("error", peerErrorHandler);
 
-  // Update React state with new peer
-  setConnectedPeers(connectedPeers);
+      resolve(false);
+    };
 
-  connectedPeer.connection.on("error", (error) => console.error(error));
+    peer.addListener("error", peerErrorHandler);
 
-  connectedPeer.connection.on("open", () => handleOpen(connectedPeer));
+    connectedPeer.connection.on("error", (error) => {
+      console.error(error);
 
-  connectedPeer.connection.on("close", () => handleDisconnect(connectedPeer));
+      handleDisconnect(connectedPeer);
+
+      resolve(false);
+    });
+
+    connectedPeer.connection.on("open", async () => {
+      // // Update React state with new peer
+      // setConnectedPeers(connectedPeers);
+
+      peer.removeListener("error", peerErrorHandler);
+
+      // Add new connection to list of peer connections
+      connectedPeers.push(connectedPeer);
+
+      await handleOpen(connectedPeer, initiator, name || null);
+
+      resolve(true);
+    });
+
+    connectedPeer.connection.on("close", () => {
+      handleDisconnect(connectedPeer);
+
+      resolve(false);
+    });
+  });
 };
 
 export default handleConnection;

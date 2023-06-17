@@ -1,11 +1,16 @@
 import { getData } from "../database";
 import handleData, { send } from "../data/peerDataHandler";
+import { createUser } from "../data/user";
 
 import { Self, UserDocument } from "../database/types";
 import { DataPackage, dataTypes } from "../data/types";
 import { ConnectedPeer } from "./types";
 
-const handleOpen = (connectedPeer: ConnectedPeer) => {
+const handleOpen = async (
+  connectedPeer: ConnectedPeer,
+  initiator = false,
+  name?: string,
+) => {
   connectedPeer.connection.on("data", (data: DataPackage) =>
     handleData(data, connectedPeer),
   );
@@ -29,10 +34,9 @@ const handleOpen = (connectedPeer: ConnectedPeer) => {
         payload: publicSelf,
       },
       connectedPeer,
-      // recieveConnectedUser,
     );
-  } else {
-    console.error("I don't have a user!");
+  } else if (initiator) {
+    await createUser(name, connectedPeer);
   }
 };
 

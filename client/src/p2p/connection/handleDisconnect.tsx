@@ -1,10 +1,21 @@
-import { connectedPeers } from "./webConnect";
+import { connectedPeers, peer } from "./webConnect";
 import { setConnectedPeers } from "../../reactCode/Connect";
 
 import { ConnectedPeer } from "./types";
 
 const handleDisconnect = (connectedPeer: ConnectedPeer) => {
   console.error("DISCONNECTING");
+
+  const gottenConnection = peer.getConnection(
+    connectedPeer.connection.peer,
+    connectedPeer.connection.connectionId,
+  );
+
+  if (gottenConnection) {
+    gottenConnection.removeAllListeners();
+
+    gottenConnection.close();
+  }
 
   connectedPeers.splice(
     connectedPeers.findIndex(
@@ -13,6 +24,7 @@ const handleDisconnect = (connectedPeer: ConnectedPeer) => {
     ),
     1,
   );
+
   setConnectedPeers(connectedPeers);
 };
 

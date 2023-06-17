@@ -1,19 +1,23 @@
 import { iterateRandom2DMatrixFromCenter } from "../../lib/iterators";
 import { Vector2 } from "./types";
-import { getUser } from "../database";
+import { getData, getUser } from "../database";
 
 export const findFreeIndex = () => {
   let foundIndex: Vector2 = null;
 
-  iterateRandom2DMatrixFromCenter([0, 0], 1, (position, cancel) => {
-    const foundUser = getUser(position);
+  iterateRandom2DMatrixFromCenter(
+    getData(["self"])?.index || [0, 0],
+    1,
+    (position, cancel) => {
+      const foundUser = getUser(position);
 
-    if (!foundUser) {
-      foundIndex = position;
+      if (!foundUser) {
+        foundIndex = position;
 
-      cancel();
-    }
-  });
+        cancel();
+      }
+    },
+  );
 
   return foundIndex;
 };

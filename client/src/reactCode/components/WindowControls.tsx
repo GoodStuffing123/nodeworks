@@ -14,7 +14,9 @@ interface StyleProps {
 const WindowControlsStyles = styled.div<StyleProps>`
   top: 0;
   height: 35px;
-  background: ${({ isFullScreen }) => (isFullScreen ? "#000000" : "none")};
+  /* background: ${({ isFullScreen }) =>
+    isFullScreen ? "#000000" : "none"}; */
+  background: #000000;
 
   .window-control-bar {
     display: flex;

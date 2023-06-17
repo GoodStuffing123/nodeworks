@@ -10,7 +10,7 @@ const port = process.env.PORT || "8080";
 if (process.env.ENVIRONMENT !== "development") {
   app.use(expressRateLimit({
     windowMs: 1000 * 60,
-    max: 10,
+    max: 6,
   }));
 }
 

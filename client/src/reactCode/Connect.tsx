@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import Router from "./Router";
+// import Router from "./Router";
 import LoadingSplash from "./components/LoadingSplash";
 // import Simulation from "./simulator/Simulation";
 
@@ -8,9 +8,11 @@ import LoadingSplash from "./components/LoadingSplash";
 
 import { connect, disconnect } from "../p2p/connection/webConnect";
 
+import UsernameForm from "./components/UsernameForm";
+import MainPage from "./pages/MainPage";
+
 import { ConnectedPeer } from "../p2p/connection/types";
 import { Self } from "../p2p/database/types";
-import UsernameForm from "./components/UsernameForm";
 
 export let setConnectedPeers: (value: ConnectedPeer[]) => void;
 export let setSelf: (value: Self) => void;
@@ -69,11 +71,13 @@ const Connect = () => {
 
     console.log("CONNECTING");
 
+    console.log(process.env);
+
     connect(
       username,
-      username === process.env.REACT_APP_CENTRAL_PEER_NAME
-        ? process.env.REACT_APP_CENTRAL_PEER_NAME
-        : null,
+      // username === process.env.REACT_APP_CENTRAL_PEER_NAME
+      //   ? process.env.REACT_APP_CENTRAL_PEER_NAME
+      //   : null,
     );
 
     setConnecting(true);
@@ -95,7 +99,7 @@ const Connect = () => {
 
   return connected && self ? (
     // <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
-    <Router
+    <MainPage
       {...{ self, connectedPeers, setPeerConnections: setConnectedPeers }}
     />
   ) : // </PeerContext.Provider>

@@ -76,6 +76,9 @@ const ChatBox = ({ self }: { self: Self }) => {
   }, [message]);
 
   useEffect(() => {
+    chatMessagesContainerRef.current.scrollTop =
+      chatMessagesContainerRef.current.scrollHeight;
+
     const messageListener = addPeerListener(dataTypes.CHAT_MESSAGE, (data) => {
       setMessages([...messages, data.payload]);
     });

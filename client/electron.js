@@ -20,7 +20,7 @@ const loadMainWindow = () => {
     frame: false,
     vibrancy: "popover",
     visualEffectState: "active",
-    backgrounsMaterial: "acrylic",
+    backgroundMaterial: "acrylic",
     fullscreenable: true,
   });
 
