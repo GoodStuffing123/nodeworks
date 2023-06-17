@@ -1,6 +1,6 @@
 const express = require("express");
 const expressRateLimit = require("express-rate-limit");
-require("dotenv")?.config();
+// require("dotenv").config();
 // const http = require("http");
 const routes = require("./routes/routes.js");
 
