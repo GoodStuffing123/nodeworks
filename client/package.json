@@ -9,8 +9,8 @@
     "electron": "electron .",
     "app1": "concurrently -k \"BROWSER=none yarn start\" \"yarn electron\"",
     "app2": "concurrently -k \"BROWSER=none yarn start\" \"yarn electron\" \"yarn electron\"",
-    "build": "react-scripts build && cp -r electron.js build",
-    "package": "yarn build && electron-builder build --mac --arm64 --x64 --publish never && electron-builder build --win --x64 --publish never"
+    "build": "react-scripts build",
+    "package": "yarn build && cp -r electron.js build && electron-builder build --mac --arm64 --x64 --publish never && electron-builder build --win --x64 --publish never"
   },
   "keywords": [],
   "author": "",
