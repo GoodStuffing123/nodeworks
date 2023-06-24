@@ -35,7 +35,7 @@ const PeerConnectionsList = ({
 
       {connectedPeers.map((peer) => (
         <li key={peer.connection.peer} onClick={() => setSelectedPeer(peer)}>
-          {peer.user?.name || "connecting..."}
+          {peer.user?.username || "connecting..."}
         </li>
       ))}
 
@@ -43,7 +43,7 @@ const PeerConnectionsList = ({
         <InfoPopup position={[0, 0]} close={() => setSelectedPeer(null)}>
           {selectedPeer.user ? (
             <>
-              <p>Name: {selectedPeer.user.name}</p>
+              <p>Name: {selectedPeer.user.username}</p>
 
               <p>
                 Index: {selectedPeer.user.index[0]},{" "}

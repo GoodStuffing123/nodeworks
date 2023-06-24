@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
-import { connectedPeers } from "../../p2p/connection/webConnect";
+import { connectedPeers } from "../../p2p/connection";
 import { distance } from "../../utility/math";
-
-import { Self } from "../../p2p/database/types";
 
 import styled from "styled-components";
 

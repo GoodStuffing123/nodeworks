@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { getData } from "../../p2p/database";
 
-import { ConnectedPeer } from "../../p2p/connection/types";
-import { Self } from "../../p2p/database/types";
+import { ConnectedPeer, Self } from "../../p2p/connection/types";
 import { Vector2 } from "../../p2p/indexing/types";
 
 import styled from "styled-components";
@@ -58,23 +57,23 @@ const draw = (
   ctx.font = `${0.15 * canvasGridPosMultiplier}px monospace`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(`${self.index[0]},${self.index[1]}`, 0, 0);
+  ctx.fillText(`${self.user.index[0]},${self.user.index[1]}`, 0, 0);
 
   connectedPeers.forEach((connectedPeer, i) => {
     const peerIndex = connectedPeer.user?.index;
 
-    if (peerIndex && self?.index) {
+    if (peerIndex && self.user) {
       const nodePos: Vector2 = [
-        (peerIndex[0] - self.index[0]) * canvasGridPosMultiplier,
-        (peerIndex[1] - self.index[1]) * canvasGridPosMultiplier,
+        (peerIndex[0] - self.user.index[0]) * canvasGridPosMultiplier,
+        (peerIndex[1] - self.user.index[1]) * canvasGridPosMultiplier,
       ];
 
       ctx.fillStyle = "#ffffff";
 
       ctx.beginPath();
       ctx.arc(
-        (peerIndex[0] - self.index[0]) * canvasGridPosMultiplier,
-        (peerIndex[1] - self.index[1]) * canvasGridPosMultiplier,
+        (peerIndex[0] - self.user.index[0]) * canvasGridPosMultiplier,
+        (peerIndex[1] - self.user.index[1]) * canvasGridPosMultiplier,
         canvasGridPosMultiplier / 4,
         0,
         Math.PI * 2,

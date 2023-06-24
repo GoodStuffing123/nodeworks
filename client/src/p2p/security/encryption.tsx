@@ -1,6 +1,6 @@
 import { DataPackage } from "../data/types";
 
-export const generateKeys = async (stringify: boolean = false) => {
+export const generateKeys = async () => {
   const cryptoKeys = await crypto.subtle.generateKey(
     {
       name: "RSA-OAEP",
@@ -26,8 +26,8 @@ export const exportCryptoKeyPair = async (
   };
 };
 
-const encryptData = async (
-  dataToEncrypt: DataPackage,
+export const encryptData = async (
+  dataToEncrypt: DataPackage<any>,
   publicKey: CryptoKey,
 ): Promise<ArrayBuffer> => {
   return await crypto.subtle.encrypt(
@@ -39,10 +39,10 @@ const encryptData = async (
   );
 };
 
-const decryptData = async (
+export const decryptData = async (
   dataToDecrypt: ArrayBuffer,
   privateKey: CryptoKey,
-): Promise<DataPackage> => {
+): Promise<DataPackage<any>> => {
   return JSON.parse(
     new TextDecoder().decode(
       await crypto.subtle.decrypt(

@@ -1,21 +1,28 @@
 import { Vector2 } from "../indexing/types";
 import { ConnectedPeer } from "../connection/types";
 
-export interface DataPackage {
+export interface DataPackage<T> {
   type: string;
-  payload?: any;
+  payload?: T;
   responseCode?: string;
-  chainHistory?: Vector2[];
+  chainHistory?: string[];
 }
 
-export type PeerListenerCallback = (
-  data: DataPackage,
+export type PeerListenerCallback<T> = (
+  data: DataPackage<T>,
   peerConnection: ConnectedPeer,
 ) => any;
 
-export interface PeerListener {
+export interface PeerListener<T> {
   type: string;
-  callback: PeerListenerCallback;
+  callback: PeerListenerCallback<T>;
+}
+
+export interface PublicUserData {
+  username: string;
+  index: Vector2;
+
+  publicKey: JsonWebKey;
 }
 
 export const dataTypes = {
@@ -26,7 +33,8 @@ export const dataTypes = {
   FIND_FREE_INDEX: "FIND_FREE_INDEX",
 
   REGISTER_USER: "REGISTER_USER",
-  SEND_USER: "SEND_USER",
+  SEND_SELF: "SEND_SELF",
+  REQUEST_SELF: "REQUEST_SELF",
   SYNC_USER_DATABASE: "SYNC_USER_DATABASE",
 
   CHAT_MESSAGE: "CHAT_MESSAGE",

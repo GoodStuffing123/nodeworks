@@ -1,42 +1,70 @@
-import { connectedPeers } from "../connection/webConnect";
+import { self } from "./user";
+import { connectedPeers } from "../connection";
 import { sendWithResponse } from "./peerDataHandler";
-import handleDisconnect from "../connection/handleDisconnect";
+import handleDisconnect from "../connection/disconnectFromPeer";
+import { distanceBetweenIndexes } from "../indexing";
+import recieveConnectedUser from "./user/recieveConnectedUser";
 
-import { dataTypes } from "./types";
+import { dataTypes, PublicUserData } from "./types";
 
 let pingInterval: NodeJS.Timer;
+const pingIntervalDelay = 10000;
+const minPeerConnectionsLimit = 5;
 
-const initializePinging = () => {
-  clearInterval(pingInterval);
+export const initializePinging = () => {
+  deinitializePinging();
 
   pingInterval = setInterval(() => {
     const now = Date.now();
 
-    connectedPeers.forEach((connectedPeer) => {
-      if (!connectedPeer.lastPing || now - connectedPeer.lastPing < 25000) {
-        // console.log("PING");
-        if (!connectedPeer.lastPing) {
-          connectedPeer.lastPing = Date.now() - 10000;
-        }
-
-        sendWithResponse(
-          {
-            type: dataTypes.PING,
-          },
-          connectedPeer,
-          (res) => {
-            if (res.payload) {
-              // console.log("PONG BACK");
-
-              connectedPeer.lastPing = Date.now();
-            }
-          },
-        );
-      } else {
+    connectedPeers.forEach(async (connectedPeer) => {
+      if (
+        self.user &&
+        connectedPeer.user &&
+        connectedPeers.length > minPeerConnectionsLimit &&
+        distanceBetweenIndexes(connectedPeer.user.index, self.user.index) >= 2
+      ) {
         handleDisconnect(connectedPeer);
+      } else {
+        if (
+          !connectedPeer.lastPing ||
+          now - connectedPeer.lastPing < pingIntervalDelay * 2 + 5000
+        ) {
+          if (!connectedPeer.lastPing) {
+            connectedPeer.lastPing = Date.now() - pingIntervalDelay;
+          }
+
+          const pingResponse = await sendWithResponse<boolean>(
+            {
+              type: dataTypes.PING,
+            },
+            connectedPeer,
+          );
+
+          if (pingResponse.payload) {
+            if (connectedPeer.user) {
+              connectedPeer.lastPing = Date.now();
+            } else {
+              const otherUserData = await sendWithResponse<PublicUserData>(
+                { type: dataTypes.REQUEST_SELF },
+                connectedPeer,
+              );
+
+              recieveConnectedUser(otherUserData, connectedPeer);
+            }
+          }
+        } else {
+          handleDisconnect(connectedPeer);
+        }
       }
     });
-  }, 10000);
+  }, pingIntervalDelay);
 };
 
-initializePinging();
+export const deinitializePinging = () => {
+  clearInterval(pingInterval);
+
+  connectedPeers.forEach((connectedPeer) => {
+    connectedPeer.lastPing = null;
+  });
+};

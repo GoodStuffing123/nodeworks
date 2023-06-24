@@ -1,10 +1,10 @@
 import { addPeerListener } from "./peerDataHandler";
 import { findFreeIndex } from "../indexing";
-import {
-  recieveConnectedUser,
-  registerOtherUser,
-  syncUserDatabase,
-} from "./user";
+import { generatePublicUserData, self } from "./user";
+import registerOtherUser from "./user/registerOtherUser";
+import recieveConnectedUser from "./user/recieveConnectedUser";
+import syncUserDatabase from "../database/syncUserDatabase";
+
 import { dataTypes } from "./types";
 
 const initializeGlobalPeerDataHandling = () => {
@@ -13,15 +13,16 @@ const initializeGlobalPeerDataHandling = () => {
   });
 
   addPeerListener(dataTypes.PING, () => {
-    // console.log("PONG");
-
     return true;
   });
 
   addPeerListener(dataTypes.FIND_FREE_INDEX, findFreeIndex);
 
   addPeerListener(dataTypes.REGISTER_USER, registerOtherUser);
-  addPeerListener(dataTypes.SEND_USER, recieveConnectedUser);
+  addPeerListener(dataTypes.SEND_SELF, recieveConnectedUser);
+  addPeerListener(dataTypes.REQUEST_SELF, () =>
+    self.user ? generatePublicUserData(self.user) : null,
+  );
   addPeerListener(dataTypes.SYNC_USER_DATABASE, syncUserDatabase);
 };
 

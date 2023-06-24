@@ -37,7 +37,7 @@ const App = () => {
             bottom: "8px",
           }}
         >
-          v0.0.1-pre
+          {process.env.REACT_APP_VERSION}
         </span>
       </div>
     </GlobalStylesProvider>

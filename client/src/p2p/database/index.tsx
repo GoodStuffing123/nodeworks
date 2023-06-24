@@ -1,9 +1,14 @@
-import { connectedPeers } from "../connection/webConnect";
-import { setConnectedPeers, setSelf } from "../../reactCode/Connect";
+import { self } from "../data/user";
+import { connectedPeers } from "../connection";
+import {
+  setConnectedPeers,
+  setSelf as setReactSelf,
+} from "../../reactCode/Connect";
 
-import { Self, UserDocument } from "./types";
+import { UserDocument } from "./types";
 import { Vector2 } from "../indexing/types";
-import { ConnectedPeer } from "../connection/types";
+import { ConnectedPeer, Self } from "../connection/types";
+import { matchIndexes } from "../indexing";
 
 const data: {
   users: {
@@ -49,14 +54,29 @@ export const setData = (path: (string | number)[], value: any) => {
   }
 
   if (path[0] === "self") {
-    setSelf(data.self);
+    setReactSelf(data.self);
   }
 };
 
-export const getUser = (index: Vector2) => {
-  const columns = data.users[index[0]];
+export const getUser = (index: Vector2): UserDocument => {
+  let user: UserDocument = getData(["users", ...index]);
 
-  return columns ? columns[index[1]] || null : null;
+  if (user) {
+    return user;
+  } else if (self.user?.index && matchIndexes(index, self.user.index)) {
+    const newUserDocument: UserDocument = {
+      username: self.user.username,
+      publicKey: self.user.publicKey,
+      index: self.user.index,
+
+      discoveredAt: null,
+      lastConnection: null,
+    };
+
+    return newUserDocument;
+  } else {
+    return null;
+  }
 };
 
 export const setUser = (

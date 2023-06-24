@@ -1,25 +1,22 @@
-import { connectedPeers } from "../connection/webConnect";
+import { connectedPeers } from "../connection";
+import { findRandomConnectedPeerWithIndex } from "../connection/findConnectedPeers";
+import { self } from "./user";
 
 import { ConnectedPeer } from "../connection/types";
-import {
-  DataPackage,
-  dataTypes,
-  PeerListener,
-  PeerListenerCallback,
-} from "./types";
+import { DataPackage, PeerListener, PeerListenerCallback } from "./types";
 
-const peerListeners: PeerListener[] = [];
+const peerListeners: PeerListener<any>[] = [];
 
-export const addPeerListener = (
+export const addPeerListener = <T,>(
   type: string,
-  callback: PeerListenerCallback,
+  callback: PeerListenerCallback<T>,
 ) => {
-  const newListener: PeerListener = { type, callback };
+  const newListener: PeerListener<T> = { type, callback };
   peerListeners.push(newListener);
   return newListener;
 };
 
-export const removePeerListener = (oldListener: PeerListener) => {
+export const removePeerListener = (oldListener: PeerListener<any>) => {
   const oldListenerIndex = peerListeners.indexOf(oldListener);
 
   if (oldListenerIndex !== -1) {
@@ -27,8 +24,60 @@ export const removePeerListener = (oldListener: PeerListener) => {
   }
 };
 
+export const send = (
+  data: DataPackage<any>,
+  connectedPeer: ConnectedPeer,
+  responseCode?: string,
+) => {
+  const dataToSend: DataPackage<any> = {
+    ...data,
+    responseCode,
+    chainHistory: [...(data?.chainHistory || []), self.peer.id],
+  };
+
+  connectedPeer.connection.send(dataToSend);
+};
+
+let responseCode = 0;
+export const sendWithResponse = <T,>(
+  data: DataPackage<any>,
+  connectedPeer: ConnectedPeer,
+) => {
+  const responseCodeString = responseCode.toString();
+  responseCode++;
+
+  send(data, connectedPeer, responseCodeString);
+
+  let listener: PeerListener<T>;
+  return new Promise<DataPackage<T>>((resolve) => {
+    listener = addPeerListener(responseCodeString, (res: DataPackage<T>) => {
+      removePeerListener(listener);
+
+      resolve(res);
+    });
+  });
+};
+
+export const sendChain = (data: DataPackage<any>, responseCode: string) => {
+  const connectedPeer = findRandomConnectedPeerWithIndex(data.chainHistory);
+
+  if (connectedPeer) {
+    send(data, connectedPeer, responseCode);
+  } else {
+    console.error("No connected peers with index found!");
+  }
+};
+
+export const sendChainWithResponse = <T,>(data: DataPackage<any>) => {
+  const connectedPeer = findRandomConnectedPeerWithIndex(
+    data.chainHistory || [],
+  );
+
+  return sendWithResponse<T>(data, connectedPeer);
+};
+
 export const broadcast = (
-  data: DataPackage,
+  data: DataPackage<any>,
   connectionList: ConnectedPeer[] = connectedPeers,
 ) => {
   if (!data.chainHistory) {
@@ -38,57 +87,14 @@ export const broadcast = (
   connectionList.forEach((peerConnection) => {
     if (
       peerConnection.user &&
-      !data.chainHistory.includes(peerConnection.user.index)
+      !data.chainHistory.includes(peerConnection.connection.peer)
     ) {
       send(data, peerConnection);
     }
   });
 };
 
-export const send = async (
-  data: DataPackage,
-  connectedPeer: ConnectedPeer,
-  responseCode?: string,
-) => {
-  connectedPeer.connection.send({
-    ...data,
-    responseCode,
-  });
-};
-
-let responseCode = 0;
-export const sendWithResponse = async (
-  data: DataPackage,
-  connectedPeer: ConnectedPeer,
-  callback: PeerListenerCallback,
-) => {
-  // if (data.type !== dataTypes.PING) {
-  //   console.log("SENDING REQUEST AND EXPECTING A RESPONSE", data);
-  // }
-
-  const responseCodeString = responseCode.toString();
-
-  send(data, connectedPeer, responseCodeString);
-
-  const listener = addPeerListener(
-    responseCodeString,
-    (cbdata, connectedPeer) => {
-      // if (data.type !== dataTypes.PING) {
-      //   console.log("RESPONSE RECIEVED", data);
-      // }
-
-      callback(cbdata, connectedPeer);
-
-      removePeerListener(listener);
-    },
-  );
-
-  responseCode++;
-};
-
-const handleData = (data: DataPackage, peerConnection: ConnectedPeer) => {
-  // console.log("Data type: ", data.type);
-
+const handleData = (data: DataPackage<any>, peerConnection: ConnectedPeer) => {
   const activeListeners = peerListeners.filter(
     (listener) => data.type === listener.type,
   );

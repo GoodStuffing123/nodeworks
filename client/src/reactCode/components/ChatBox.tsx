@@ -6,9 +6,9 @@ import {
 } from "../../p2p/data/peerDataHandler";
 
 import { dataTypes } from "../../p2p/data/types";
-import { Self } from "../../p2p/database/types";
 
 import styled from "styled-components";
+import { Self } from "../../p2p/connection/types";
 
 interface ChatMessage {
   username: string;
@@ -58,7 +58,10 @@ const ChatBox = ({ self }: { self: Self }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const newMessage: ChatMessage = { username: self.name, content: message };
+    const newMessage: ChatMessage = {
+      username: self.user.username,
+      content: message,
+    };
 
     broadcast({
       type: dataTypes.CHAT_MESSAGE,
@@ -79,9 +82,12 @@ const ChatBox = ({ self }: { self: Self }) => {
     chatMessagesContainerRef.current.scrollTop =
       chatMessagesContainerRef.current.scrollHeight;
 
-    const messageListener = addPeerListener(dataTypes.CHAT_MESSAGE, (data) => {
-      setMessages([...messages, data.payload]);
-    });
+    const messageListener = addPeerListener<ChatMessage>(
+      dataTypes.CHAT_MESSAGE,
+      (data) => {
+        setMessages([...messages, data.payload]);
+      },
+    );
 
     return () => {
       removePeerListener(messageListener);

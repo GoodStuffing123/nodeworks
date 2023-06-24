@@ -1,42 +1,35 @@
-import { getData } from "../database";
+import { connectedPeers } from "./index";
 import handleData, { send } from "../data/peerDataHandler";
-import { createUser } from "../data/user";
+import { createUser, generatePublicUserData, self } from "../data/user";
 
-import { Self, UserDocument } from "../database/types";
 import { DataPackage, dataTypes } from "../data/types";
 import { ConnectedPeer } from "./types";
 
-const handleOpen = async (
+const handleOpen = (
   connectedPeer: ConnectedPeer,
   initiator = false,
-  name?: string,
+  resolve: (value: boolean | PromiseLike<boolean>) => void,
 ) => {
-  connectedPeer.connection.on("data", (data: DataPackage) =>
+  connectedPeers.push(connectedPeer);
+
+  connectedPeer.connection.on("data", (data: DataPackage<any>) =>
     handleData(data, connectedPeer),
   );
 
-  console.log("CONNECTED TO " + connectedPeer.connection.peer);
-
-  const self: Self = getData(["self"]);
-  if (self) {
-    const publicSelf: UserDocument = {
-      name: self.name,
-      index: self.index,
-      publicKey: self.publicKey,
-
-      discoveredAt: null,
-      lastConnection: null,
-    };
-
+  if (self.user) {
     send(
       {
-        type: dataTypes.SEND_USER,
-        payload: publicSelf,
+        type: dataTypes.SEND_SELF,
+        payload: generatePublicUserData(self.user),
       },
       connectedPeer,
     );
+
+    resolve(true);
   } else if (initiator) {
-    await createUser(name, connectedPeer);
+    createUser(connectedPeer, resolve);
+  } else {
+    resolve(true);
   }
 };
 

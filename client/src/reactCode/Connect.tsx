@@ -6,13 +6,13 @@ import LoadingSplash from "./components/LoadingSplash";
 
 // import { PeerContext } from "./components/Context";
 
-import { connect, disconnect } from "../p2p/connection/webConnect";
+import { connect } from "../p2p/connection";
+import destroy from "../p2p/connection/destroy";
 
 import UsernameForm from "./components/UsernameForm";
 import MainPage from "./pages/MainPage";
 
-import { ConnectedPeer } from "../p2p/connection/types";
-import { Self } from "../p2p/database/types";
+import { ConnectedPeer, Self } from "../p2p/connection/types";
 
 export let setConnectedPeers: (value: ConnectedPeer[]) => void;
 export let setSelf: (value: Self) => void;
@@ -71,21 +71,14 @@ const Connect = () => {
 
     console.log("CONNECTING");
 
-    console.log(process.env);
-
-    connect(
-      username,
-      // username === process.env.REACT_APP_CENTRAL_PEER_NAME
-      //   ? process.env.REACT_APP_CENTRAL_PEER_NAME
-      //   : null,
-    );
+    connect(username);
 
     setConnecting(true);
 
     return () => {
       console.log("DISCONNECTING");
 
-      disconnect();
+      destroy();
     };
   };
 
@@ -97,7 +90,7 @@ const Connect = () => {
     }
   }, [connectedPeers]);
 
-  return connected && self ? (
+  return connected && self?.user ? (
     // <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
     <MainPage
       {...{ self, connectedPeers, setPeerConnections: setConnectedPeers }}
