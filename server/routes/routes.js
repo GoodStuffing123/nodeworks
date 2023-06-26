@@ -1,3 +1,10 @@
+const CyclicDB = require("@cyclic.sh/dynamodb");
+let db;
+let addressesCollection;
+if (process.env.NODE_ENV !== "development") {
+  db = CyclicDB("plain-bee-tightsCyclicDB");
+  addressesCollection = db.collection("addresses");
+}
 // const { read, write } = require("../utility/manageData");
 
 // const makeAddress = (id) => ({
@@ -14,15 +21,17 @@ const routes = (app) => {
   // });
 
   let addresses = [];
-
   // Distribute addresses to user and add them to the address list
-  app.get("/", (req, res) => {
+  app.get("/", async (req, res) => {
     // const currentDate = Date.now();
     // for (let i = addresses.length - 1; i > -1; i--) {
     //   if (currentDate - addresses[i].lastPing > addressTimeout) {
     //     addresses.splice(i, 1);
     //   }
     // }
+    if (process.env.NODE_ENV !== "development") {
+      addresses = await addressesCollection.get("addresses") || [];
+    }
 
     res.status(200).send(addresses);
 
@@ -32,6 +41,10 @@ const routes = (app) => {
       if (addresses.length > maxSavedAddresses) {
         addresses.shift();
       }
+    }
+
+    if (process.env.NODE_ENV !== "development") {
+      await addressesCollection.set("addresses", addresses);
     }
   });
 
