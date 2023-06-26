@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== "development") {
 app.use(express.json());
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://nodeworks.netlify.com");
+  res.header("Access-Control-Allow-Origin", process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://nodeworks.netlify.app");
 
   next();
 });
