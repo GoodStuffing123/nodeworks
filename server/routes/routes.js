@@ -30,7 +30,7 @@ const routes = (app) => {
     //   }
     // }
     if (process.env.NODE_ENV !== "development") {
-      addresses = await addressesCollection.get("addresses") || [];
+      addresses = (await addressesCollection.get("addresses")) || [];
     }
 
     res.status(200).send(addresses);
