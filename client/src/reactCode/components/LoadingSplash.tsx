@@ -3,14 +3,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { connectedPeers } from "../../p2p/connection";
 import { distance } from "../../utility/math";
 
-import styled from "styled-components";
+import styled, { DefaultTheme } from "styled-components";
 
 // Set styles for Canvas
 const Canvas = styled.canvas`
   position: absolute;
   left: 0;
   top: 0;
-  /* z-index: -1; */
+  z-index: -1;
 `;
 
 // Declare interface for a single animated node
@@ -86,7 +86,11 @@ generateNodes();
 // Declare last frame timestamp variable
 let lastFrame = 0;
 // Function to calculate and draw loading animation to the canvas
-const draw = (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+const draw = (
+  Canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  theme: DefaultTheme,
+) => {
   // Find center of screen
   const center = { x: Canvas.width / 2, y: Canvas.height / 2 };
   // Clear the canvas
@@ -99,8 +103,8 @@ const draw = (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
   lastFrame = thisFrame;
 
   // Set canvas to drawing color
-  ctx.fillStyle = "white";
-  ctx.strokeStyle = "white";
+  ctx.fillStyle = theme.palette.text;
+  ctx.strokeStyle = theme.palette.text;
 
   // Draw nodes and their connectors to the canvas
   nodes.forEach((node: AnimNode) => {
@@ -144,7 +148,7 @@ const draw = (Canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
   // ctx.fillText(`Delta Time: ${deltaTime}`, 0, 0);
 };
 
-const LoadingSplash = () => {
+const LoadingSplash = ({ theme }: { theme: DefaultTheme }) => {
   const [dimentions, setDimentions] = useState({
     width: 0,
     height: 0,
@@ -169,7 +173,7 @@ const LoadingSplash = () => {
     let animationComplete = false;
     const runAnimation = async () => {
       if (!animationComplete && canvasRef.current) {
-        draw(canvasRef.current, ctx);
+        draw(canvasRef.current, ctx, theme);
 
         requestAnimationFrame(runAnimation);
       }
@@ -181,7 +185,7 @@ const LoadingSplash = () => {
 
       animationComplete = true;
     };
-  }, []);
+  }, [theme]);
 
   return (
     <Canvas

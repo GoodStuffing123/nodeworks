@@ -1,5 +1,4 @@
 import { connectedPeers } from "./index";
-import reload from "./reload";
 import { self } from "../data/user";
 import { setConnectedPeers } from "../../reactCode/Connect";
 
@@ -28,10 +27,6 @@ const disconnectFromPeer = (connectedPeer: ConnectedPeer) => {
   );
 
   setConnectedPeers(connectedPeers);
-
-  if (!connectedPeers.length) {
-    reload();
-  }
 };
 
 export default disconnectFromPeer;

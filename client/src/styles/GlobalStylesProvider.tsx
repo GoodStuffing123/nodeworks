@@ -13,6 +13,10 @@ interface StyleProps {
 const GlobalStyles = createGlobalStyle<StyleProps>`
   /* Global */
 
+  * {
+    transition: background-color 0.5s;
+  }
+
   html {
     font-family: sans-serif;
     background: none;
@@ -27,17 +31,24 @@ const GlobalStyles = createGlobalStyle<StyleProps>`
 
   #app-content {
     padding: 0 5vw;
+    margin-top: 10px;
     overflow-y: scroll;
+  }
+
+  #app-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
 
     background-color: ${({ theme, isFullScreen }) =>
       theme.palette.background +
       (window.process?.versions["electron"] && !isFullScreen
         ? theme.palette.backgroundTransparency
         : "")};
-    
-    height: ${
-      window.process?.versions["electron"] ? "calc(100vh - 35px)" : "100vh"
-    };
+
+    z-index: -9999;
   }
 
   /* Interactable Elements */
@@ -57,6 +68,10 @@ const GlobalStyles = createGlobalStyle<StyleProps>`
     &:focus {
       border-bottom: 2px solid ${({ theme }) => theme.palette.secondary};
     }
+
+    &::placeholder {
+      color: ${({ theme }) => theme.palette.primary};
+    }
   }
 
   textarea {
@@ -68,7 +83,7 @@ const GlobalStyles = createGlobalStyle<StyleProps>`
 
     font-size: medium;
     background: none;
-    color: white;
+    color: ${({ theme }) => theme.palette.text};
 
     border: none;
     border-top: 2px solid ${({ theme }) => theme.palette.primary};

@@ -10,14 +10,14 @@ const PeerConnectionsListStyles = styled.ul`
     list-style: none;
     padding: 5px;
     margin: 5px;
-    background-color: #181818;
+    background-color: ${({ theme }) => theme.palette.primary};
     border-radius: 5px;
     cursor: pointer;
 
     transition: background-color 0.3s;
 
     &:hover {
-      background-color: #222222;
+      background-color: ${({ theme }) => theme.palette.tertiary};
     }
   }
 `;

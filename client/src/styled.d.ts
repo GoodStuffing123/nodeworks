@@ -6,6 +6,7 @@ interface AppPalette {
   backgroundTransparency: string;
   primary: string;
   secondary: string;
+  tertiary: string;
 }
 
 declare module "styled-components" {

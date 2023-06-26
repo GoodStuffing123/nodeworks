@@ -3,9 +3,11 @@ import PeerConnectionsList from "../components/PeerConnectionsList";
 import PeerVisualizer from "../components/PeerVisualizer";
 import ChatBox from "reactCode/components/ChatBox";
 
+import destroy from "p2p/connection/destroy";
+
 import { ConnectedPeer, Self } from "../../p2p/connection/types";
 
-import styled from "styled-components";
+import styled, { DefaultTheme } from "styled-components";
 
 const MainPageStyles = styled.div`
   h1 {
@@ -30,16 +32,28 @@ const MainPageStyles = styled.div`
 const MainPage = ({
   self,
   connectedPeers,
+  setConnecting,
+  theme,
 }: {
   self: Self;
   connectedPeers: ConnectedPeer[];
-  setPeerConnections: Dispatch<SetStateAction<ConnectedPeer[]>>;
+  setConnectedPeers: Dispatch<SetStateAction<ConnectedPeer[]>>;
+  setConnecting: Dispatch<SetStateAction<boolean>>;
+  theme: DefaultTheme;
 }) => {
   return (
     <MainPageStyles>
       <h1 className="popup-animation">Hello, {self.user.username}</h1>
 
-      <button className="disconnect-button">Disconnect</button>
+      <button
+        className="disconnect-button"
+        onClick={() => {
+          setConnecting(false);
+          destroy();
+        }}
+      >
+        Disconnect
+      </button>
 
       <div className="peer-data-container">
         <div>
@@ -52,7 +66,7 @@ const MainPage = ({
           <div className="bordered-container popup-animation delay-5">
             <h3>Index in network</h3>
             <p>Includes your index and connected peers</p>
-            <PeerVisualizer connectedPeers={connectedPeers} />
+            <PeerVisualizer connectedPeers={connectedPeers} theme={theme} />
           </div>
         </div>
       </div>

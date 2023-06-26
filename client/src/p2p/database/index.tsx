@@ -5,9 +5,9 @@ import {
   setSelf as setReactSelf,
 } from "../../reactCode/Connect";
 
-import { UserDocument } from "./types";
+import { PrivateUserData, UserDocument } from "./types";
 import { Vector2 } from "../indexing/types";
-import { ConnectedPeer, Self } from "../connection/types";
+import { ConnectedPeer } from "../connection/types";
 import { matchIndexes } from "../indexing";
 
 const data: {
@@ -17,7 +17,7 @@ const data: {
     };
   };
 
-  self: Self;
+  self: PrivateUserData;
 } = {
   users: {},
   self: null,
@@ -54,7 +54,7 @@ export const setData = (path: (string | number)[], value: any) => {
   }
 
   if (path[0] === "self") {
-    setReactSelf(data.self);
+    setReactSelf(self);
   }
 };
 

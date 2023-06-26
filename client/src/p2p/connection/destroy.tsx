@@ -10,7 +10,7 @@ const destroy = () => {
   // Reset variables
   setSelf({
     peer: null,
-    user: null,
+    user: self.user,
   });
   connectedPeers.splice(0, connectedPeers.length);
 

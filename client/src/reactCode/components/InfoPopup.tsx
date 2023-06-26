@@ -9,7 +9,7 @@ const InfoPopupStyles = styled.div`
 
   padding: 10px;
 
-  background-color: #202020;
+  background-color: ${({ theme }) => theme.palette.primary};
   border-radius: 10px;
 `;
 

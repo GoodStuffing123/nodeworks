@@ -13,7 +13,7 @@ export let self: Self = {
 };
 export const setSelf = (data: Self) => {
   self = data;
-  setData(["self"], self);
+  setData(["self"], self.user);
 };
 
 export let username: string;

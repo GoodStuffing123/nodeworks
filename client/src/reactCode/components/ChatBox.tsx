@@ -23,7 +23,7 @@ const ChatBoxStyles = styled.div`
     .chat-message {
       margin: 10px 0;
       padding: 5px 0;
-      border-bottom: 1px solid #444444;
+      border-bottom: 1px solid ${({ theme }) => theme.palette.primary};
 
       .username {
         font-size: 10px;

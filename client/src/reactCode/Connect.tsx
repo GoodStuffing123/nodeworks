@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 // import Router from "./Router";
 import LoadingSplash from "./components/LoadingSplash";
@@ -14,10 +14,12 @@ import MainPage from "./pages/MainPage";
 
 import { ConnectedPeer, Self } from "../p2p/connection/types";
 
+import { DefaultTheme } from "styled-components";
+
 export let setConnectedPeers: (value: ConnectedPeer[]) => void;
 export let setSelf: (value: Self) => void;
 
-const Connect = () => {
+const Connect = ({ theme }: { theme: DefaultTheme }) => {
   const [connected, setConnected] = useState(true);
 
   const selfState = useState<Self>();
@@ -93,11 +95,11 @@ const Connect = () => {
   return connected && self?.user ? (
     // <PeerContext.Provider value={{ peerConnections, setPeerConnections }}>
     <MainPage
-      {...{ self, connectedPeers, setPeerConnections: setConnectedPeers }}
+      {...{ self, connectedPeers, setConnectedPeers, setConnecting, theme }}
     />
   ) : // </PeerContext.Provider>
   connecting ? (
-    <LoadingSplash />
+    <LoadingSplash theme={theme} />
   ) : (
     <UsernameForm
       username={username}

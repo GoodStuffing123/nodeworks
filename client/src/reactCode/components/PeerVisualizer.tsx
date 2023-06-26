@@ -1,25 +1,25 @@
 import React, { useEffect, useRef } from "react";
-import { getData } from "../../p2p/database";
 
-import { ConnectedPeer, Self } from "../../p2p/connection/types";
+import { ConnectedPeer } from "../../p2p/connection/types";
 import { Vector2 } from "../../p2p/indexing/types";
 
-import styled from "styled-components";
+import { self } from "../../p2p/data/user";
+
+import styled, { DefaultTheme } from "styled-components";
 
 const draw = (
   Canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   center: Vector2,
   connectedPeers: ConnectedPeer[],
+  theme: DefaultTheme,
 ) => {
-  const self: Self = getData(["self"]);
-
   ctx.clearRect(0, 0, Canvas.width, Canvas.height);
 
   ctx.save();
   ctx.translate(center[0], center[1]);
 
-  ctx.strokeStyle = "#888888";
+  ctx.strokeStyle = theme.palette.secondary;
   ctx.lineWidth = 2;
 
   const gridLineCount = 5;
@@ -44,16 +44,13 @@ const draw = (
     ctx.stroke();
   }
 
-  ctx.fillStyle = "#ffffff";
-  ctx.strokeStyle = "#202020";
-  ctx.lineWidth = 24;
+  ctx.fillStyle = theme.palette.text;
 
   ctx.beginPath();
   ctx.arc(0, 0, canvasGridPosMultiplier / 3, 0, Math.PI * 2);
-  ctx.stroke();
   ctx.fill();
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = theme.palette.background;
   ctx.font = `${0.15 * canvasGridPosMultiplier}px monospace`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -68,7 +65,7 @@ const draw = (
         (peerIndex[1] - self.user.index[1]) * canvasGridPosMultiplier,
       ];
 
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = theme.palette.text;
 
       ctx.beginPath();
       ctx.arc(
@@ -78,10 +75,9 @@ const draw = (
         0,
         Math.PI * 2,
       );
-      ctx.stroke();
       ctx.fill();
 
-      ctx.fillStyle = "#000000";
+      ctx.fillStyle = theme.palette.background;
 
       ctx.fillText(`${peerIndex[0]},${peerIndex[1]}`, nodePos[0], nodePos[1]);
     }
@@ -91,14 +87,16 @@ const draw = (
 };
 
 const PeerVisualizerStyles = styled.canvas`
-  background-color: #202020;
+  background-color: ${({ theme }) => theme.palette.primary};
   border-radius: 10px;
 `;
 
 const PeerVisualizer = ({
   connectedPeers,
+  theme,
 }: {
   connectedPeers: ConnectedPeer[];
+  theme: DefaultTheme;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>();
   const ctxRef = useRef<CanvasRenderingContext2D>();
@@ -125,7 +123,7 @@ const PeerVisualizer = ({
     let animationComplete = false;
     const runAnimation = async () => {
       if (!animationComplete && canvasRef.current) {
-        draw(canvasRef.current, ctx, center, connectedPeers);
+        draw(canvasRef.current, ctx, center, connectedPeers, theme);
 
         setTimeout(() => requestAnimationFrame(runAnimation), 1000 / 5);
       }
@@ -135,7 +133,7 @@ const PeerVisualizer = ({
     return () => {
       animationComplete = true;
     };
-  }, [connectedPeers]);
+  }, [connectedPeers, theme]);
 
   return (
     <PeerVisualizerStyles ref={canvasRef} className="popup-animation delay-1" />
