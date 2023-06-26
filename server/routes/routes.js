@@ -30,7 +30,23 @@ const routes = (app) => {
     //   }
     // }
     if (process.env.NODE_ENV !== "development") {
-      addresses = (await addressesCollection.get("addresses")) || [];
+      const dbAddressData = await addressesCollection.get("addresses");
+
+      if (dbAddressData?.props) {
+        addresses = [];
+        let looped = false;
+        for (let i = 0; !looped; i++) {
+          const address = dbAddressData.props[i.toString()];
+          if (address) {
+            addresses.push(address);
+          } else {
+            looped = true;
+          }
+        }
+      } else {
+        addresses = []
+      }
+
     }
 
     console.log(addresses);
