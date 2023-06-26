@@ -33,6 +33,8 @@ const routes = (app) => {
       addresses = (await addressesCollection.get("addresses")) || [];
     }
 
+    console.log(addresses);
+
     res.status(200).send(addresses);
 
     if (req.query.peerId) {
